@@ -15,7 +15,7 @@ def generate_uuid():
 
 def create_connection():
     try:
-        connection = mysql.connector.connect(host='127.0.0.1', database='data', user='root', password='A4432468432456432432')
+        connection = mysql.connector.connect(host='cuc-24-db-1', database='data', user='root', password='A4432468432456432432')
 
         if connection.is_connected():
             print("Connected to MySQL database")
@@ -39,6 +39,7 @@ def create_tables():
     query2 = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME NOT NULL)"
     cursor.execute(query)
     cursor.execute(query2)
+    connection.commit()
     close_connection(connection)
 
 @app.route(base_path, methods=["GET", "POST"])

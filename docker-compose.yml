@@ -18,8 +18,13 @@ services:
 
   backend:
     image: cuc-24/backend
+    restart: always
     build:
       dockerfile: backend/Dockerfile
+    ports:
+      - '8484:8484'
+    expose:
+      - '8484'
 
 volumes:
   pdg_db:

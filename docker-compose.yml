@@ -26,5 +26,15 @@ services:
     expose:
       - '8484'
 
+  frontend:
+    image: cuc-24/frontend
+    restart: always
+    build:
+      dockerfile: frontend/Dockerfile
+    ports:
+      - '3000:3000'
+    expose:
+      - '3000'
+
 volumes:
   pdg_db:

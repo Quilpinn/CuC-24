@@ -2,10 +2,10 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY frontend/package*.json ./
 RUN npm install
 
-COPY . .
+COPY frontend .
 
 ARG API_URL=http://localhost:3000
 ENV NEXT_PUBLIC_API_URL=$API_URL

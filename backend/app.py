@@ -83,6 +83,10 @@ def create_user():
 
     return Response(status=201)
 
+@app.route(base_path + "/authenticate", methods=["POST"])
+def authenticate_user():
+    return None
+
 if __name__ == '__main__':
     create_tables()
     app.run(host="0.0.0.0", port=8484, threaded=True)

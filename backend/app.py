@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, Response, request
 import mysql.connector, logging, random, string
 from mysql.connector import Error
+from hashlib import sha512
 
 logger = logging.getLogger("backend-app-logger")
 
@@ -55,7 +56,6 @@ def get_and_return_feed():
     cursor.execute(query)
     res = cursor.fetchall()
     close_connection(connection)
-    print(res)
 
     if res == []:
         logger.warning("No posts in feed found.")
@@ -74,7 +74,7 @@ def create_user():
     connection = create_connection()
     cursor = connection.cursor()
     
-    line = (generate_uuid(), data["username"], data["email"], data["password"], 0,)
+    line = (generate_uuid(), data["username"], data["email"], sha512(data["password"]), 0,)
 
     query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, VERIFIED) VALUES (%s, %s, %s, %s, %s)"
     cursor.execute(query, line)
@@ -85,7 +85,22 @@ def create_user():
 
 @app.route(base_path + "/authenticate", methods=["POST"])
 def authenticate_user():
-    return None
+    data = request.json
+
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    username = data["username"]
+    password = sha512(data["password"])
+
+    query = "SELECT * FROM Users WHERE username = ? AND password = ?"
+    cursor.execute(query, (username, password))
+    user = cursor.fetchone()
+
+    if user:
+        return jsonify({"status": "ok", "hash": "123"}), 200
+    else:
+        return jsonify({"status": "Invalid credentials"}), 401
 
 if __name__ == '__main__':
     create_tables()

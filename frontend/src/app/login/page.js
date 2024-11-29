@@ -1,6 +1,8 @@
 "use client"
 import "/src/app/globals.css";
 import React, { useState } from 'react';
+import { setAuthentication } from "/src/app/cockies"
+
 
 function InputBox({children, label}) {
   return (
@@ -40,14 +42,17 @@ function LoginBox({loginState, setLoginState}) {
         })
       });
       
-      if (!response.ok) {
-        throw new Error(response.status === 401 ? 'Invalid credentials' : 'Server error');
-      }
-      
       const data = await response.json();
-      setMessage(data.message);
+      if (response.ok) {
+        if (data.status != "ok") {
+            setMessage(response);
+        }
+        else {
+            setAuthentication(data.hash);
+        }
+      }
     } catch (error) {
-      setMessage('Login failed: ' + error.message);
+      setMessage('Login failed: ' + error.message + 'Try Reloading the page.');
     }
   };
 

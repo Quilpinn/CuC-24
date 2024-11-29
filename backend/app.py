@@ -71,6 +71,25 @@ def get_and_return_feed():
 
 @app.route(base_path + "/posts/create", methods=["POST"])
 def create_post():
+    data = Response.json
+
+    heading = data["heading"]
+    content = data["content"]
+
+    if data["picture"]:
+        contains_picture = True
+    else:
+        contains_picture = False
+
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    query = "INSERT INTO Posts (HEADING, CONTENT, PICTURE_URL) VALUES (%s, %s, %s)"
+
+    cursor.execute(query, (heading, content, contains_picture))
+    connection.commit()
+    close_connection(connection)
+
     return Response(status=500)
 
 @app.route(base_path + "/users/create", methods=["POST"])
@@ -90,8 +109,10 @@ def create_user():
         query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, VERIFIED) VALUES (%s, %s, %s, %s, %s)"
         cursor.execute(query, line)
         connection.commit()
+        close_connection(connection)
 
     except Exception:
+        close_connection(connection)
         return jsonify({"message": "Error"}), 500
 
     return jsonify({"message": "ok"}), 201
@@ -110,6 +131,8 @@ def authenticate_user():
     cursor.execute(query, (username, password))
     user = cursor.fetchone()
 
+    close_connection(connection)
+    
     if user:
         return jsonify({"status": "ok", "hash": "123"}), 200
     else:

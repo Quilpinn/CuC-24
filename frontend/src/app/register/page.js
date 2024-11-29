@@ -35,13 +35,14 @@ function RegisterBox({registerState, setRegisterState}) {
     try {
         console.log(registerState.user);
         console.log(registerState.pass);
-      const response = await fetch(`http://172.18.0.4:8484/api/v1/users/create`, {
+      const response = await fetch(`http://localhost:8484/api/v1/users/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: registerState.user,
-          password: registerState.pass,
-          email: registerState.mail
+          email: registerState.mail,
+          password: registerState.pass
+          
         })
       });
       console.log("Got here")

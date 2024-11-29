@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, Response, request
+from flask_cors import CORS, cross_origin
 import mysql.connector, logging, random, string
 from mysql.connector import Error
 from hashlib import sha512
@@ -6,6 +7,7 @@ from hashlib import sha512
 logger = logging.getLogger("backend-app-logger")
 
 app = Flask(__name__)
+CORS(app, support_credentials=True)
 
 base_path = "/api/v1/"
 
@@ -68,6 +70,7 @@ def create_post():
     return Response(status=500)
 
 @app.route(base_path + "/users/create", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def create_user():
     data = request.json
     

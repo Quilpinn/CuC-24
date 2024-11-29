@@ -1,13 +1,17 @@
 from flask import Flask, jsonify, Response, request
 import mysql.connector, logging, random, string
 from mysql.connector import Error
-from hashlib import sha512
+import hashlib
 
 logger = logging.getLogger("backend-app-logger")
 
 app = Flask(__name__)
 
 base_path = "/api/v1/"
+
+def generate_sha512(password):
+    hashed_password =hashlib.sha512(password.encode('utf-8')).hexdigest()
+    print(hashed_password)
 
 def generate_uuid():
     segments = [8, 8, 8, 8]
@@ -74,7 +78,7 @@ def create_user():
     connection = create_connection()
     cursor = connection.cursor()
     
-    line = (generate_uuid(), data["username"], data["email"], sha512(data["password"]), 0,)
+    line = (generate_uuid(), data["username"], data["email"], generate_sha512((data["password"])), 0,)
 
     query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, VERIFIED) VALUES (%s, %s, %s, %s, %s)"
     cursor.execute(query, line)
@@ -91,7 +95,7 @@ def authenticate_user():
     cursor = connection.cursor()
 
     username = data["username"]
-    password = sha512(data["password"])
+    password = generate_sha512((data["password"]))
 
     query = "SELECT * FROM Users WHERE username = ? AND password = ?"
     cursor.execute(query, (username, password))

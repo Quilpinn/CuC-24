@@ -1,5 +1,5 @@
-from flask import Flask, jsonify, Response
-import mysql.connector, logging
+from flask import Flask, jsonify, Response, request
+import mysql.connector, logging, random, string
 from mysql.connector import Error
 
 logger = logging.getLogger("backend-app-logger")
@@ -7,6 +7,11 @@ logger = logging.getLogger("backend-app-logger")
 app = Flask(__name__)
 
 base_path = "/api/v1/"
+
+def generate_uuid():
+    segments = [8, 8, 8, 8]
+
+    return '-'.join(''.join(random.choices(string.ascii_lowercase + string.digits, k=length)) for length in segments)
 
 def create_connection():
     try:
@@ -30,10 +35,11 @@ def close_connection(connection):
 def create_tables():
     connection = create_connection()
     cursor = connection.cursor()
-    query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) NOT NULL, EMAIL VARCHAR(255) NOT NULL, PASSWORD VARCHAR(255) NOT NULL, VERIFIED INT NOT NULL, CREATED_AT DATETIME NOT NULL)"
+    query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(255) NOT NULL, VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP)"
     query2 = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME NOT NULL)"
     cursor.execute(query)
     cursor.execute(query2)
+    close_connection(connection)
 
 @app.route(base_path, methods=["GET", "POST"])
 def base_path_route():
@@ -47,6 +53,7 @@ def get_and_return_feed():
 
     cursor.execute(query)
     res = cursor.fetchall()
+    close_connection(connection)
     print(res)
 
     if res == []:
@@ -61,7 +68,17 @@ def create_post():
 
 @app.route(base_path + "/users/create", methods=["POST"])
 def create_user():
+    data = request.json
     
+    connection = create_connection()
+    cursor = connection.cursor()
+    
+    line = (generate_uuid(), data["username"], data["email"], data["password"], 0,)
+
+    query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, VERIFIED) VALUES (%s, %s, %s, %s, %s)"
+    cursor.execute(query, line)
+    connection.commit()
+    print(line)
 
     return Response(status=201)
 

@@ -12,7 +12,7 @@ CORS(app, support_credentials=True)
 base_path = "/api/v1/"
 
 def generate_sha512(password):
-    hashed_password =hashlib.sha512(password.encode('utf-8')).hexdigest()
+    hashed_password = hashlib.sha512(password.encode('utf-8')).hexdigest()
     print(hashed_password)
 
 def generate_uuid():
@@ -80,15 +80,21 @@ def create_user():
     
     connection = create_connection()
     cursor = connection.cursor()
-    
-    line = (generate_uuid(), data["username"], data["email"], generate_sha512((data["password"])), 0,)
 
-    query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, VERIFIED) VALUES (%s, %s, %s, %s, %s)"
-    cursor.execute(query, line)
-    connection.commit()
+    email = data["email"]
+    
+    line = (generate_uuid(), data["username"], email, str(generate_sha512((data["password"]))), 0)
     print(line)
 
-    return Response(status=201)
+    try:
+        query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, VERIFIED) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(query, line)
+        connection.commit()
+
+    except Exception:
+        return jsonify({"message": "Error"}), 500
+
+    return jsonify({"message": "ok"}), 201
 
 @app.route(base_path + "/authenticate", methods=["POST"])
 def authenticate_user():
@@ -100,14 +106,14 @@ def authenticate_user():
     username = data["username"]
     password = generate_sha512((data["password"]))
 
-    query = "SELECT * FROM Users WHERE username = ? AND password = ?"
+    query = "SELECT * FROM Users WHERE username = %s AND password = %s"
     cursor.execute(query, (username, password))
     user = cursor.fetchone()
 
     if user:
-        return jsonify({"status": "ok", "hash": "123"}), 200
+        return jsonify({"message": "ok", "hash": "123"}), 200
     else:
-        return jsonify({"status": "Invalid credentials"}), 401
+        return jsonify({"message": "Invalid credentials"}), 401
 
 if __name__ == '__main__':
     create_tables()

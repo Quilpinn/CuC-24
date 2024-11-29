@@ -1,7 +1,7 @@
 "use client"
 import "/src/app/globals.css";
 import React, { useState } from 'react';
-import { setAuthentication, getAuthentication } from "/src/app/cockies"
+import { setAuthentication } from "/src/app/cockies"
 
 
 function InputBox({children, label}) {
@@ -27,41 +27,35 @@ function TextInput({label, ...props}) {
   );
 }
 
-function LoginBox({loginState, setLoginState}) {
+function RegisterBox({registerState, setRegisterState}) {
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        console.log(loginState.user);
-        console.log(loginState.pass);
-        console.log("__________")
-        //console.log(apiUrl)
-        console.log("__________")
-      const response = await fetch(`http://172.18.0.4:8484/api/v1/authenticate`, {//(`${apiUrl}/api/v1/authenticate`, {
+        console.log(registerState.user);
+        console.log(registerState.pass);
+      const response = await fetch(`http://172.18.0.4:8484/api/v1/users/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: loginState.user,
-          password: loginState.pass
+          username: registerState.user,
+          password: registerState.pass,
+          email: registerState.mail
         })
       });
+      console.log("Got here")
       
       const data = await response.json();
-      console.log("data recieved")
-      console.log(data)
-      if (response.ok) { // do I need this?
-        if (data.status != "ok") {
-            setMessage(data.status);
-        }
-        else {
-            setAuthentication(data.hash);
-            console.log("authentication set");
-            console.log(getAuthentication())
-        }
+      if (data.status != "ok") {
+        setMessage(data.message);
       }
+      else {
+        setAuthentication(data.hash);
+      }
+      
     } catch (error) {
-      setMessage('Login failed: ' + error.message + 'Try Reloading the page.');
+      setMessage('Registering failed: ' + error.message);
     }
   };
 
@@ -73,16 +67,24 @@ function LoginBox({loginState, setLoginState}) {
           name="userName"
           type="text"
           label="Benutzername"
-          value={loginState.user}
-          onChange={e => setLoginState({...loginState, user: e.target.value})}
+          value={registerState.user}
+          onChange={e => setRegisterState({...registerState, user: e.target.value})}
+        />
+        <TextInput
+          id="mail"
+          name="mail"
+          type="email"
+          label="E-Mail Adresse"
+          value={registerState.mail}
+          onChange={e => setRegisterState({...registerState, mail: e.target.value})}
         />
         <TextInput
           id="password"
           name="password"
           type="password"
           label="Passwort"
-          value={loginState.pass}
-          onChange={e => setLoginState({...loginState, pass: e.target.value})}
+          value={registerState.pass}
+          onChange={e => setRegisterState({...registerState, pass: e.target.value})}
         />
         <button type="submit" className="btn btn-primary mt-4 border-4 border-white bg-white rounded-lg p-1 max-w-fit">
           Submit
@@ -93,15 +95,15 @@ function LoginBox({loginState, setLoginState}) {
   );
 }
 
-export default function Login() {
-  const [loginState, setLoginState] = useState({
+export default function Register() {
+  const [registerState, setRegisterState] = useState({
     user: "",
     pass: ""
   });
 
   return (
     <div className='p-5 flex flex-col items-center gap-4'>
-      <LoginBox loginState={loginState} setLoginState={setLoginState} />
+      <RegisterBox registerState={registerState} setRegisterState={setRegisterState} />
     </div>
   );
 }

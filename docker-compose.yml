@@ -16,5 +16,10 @@ services:
     volumes:
       - pdg_db:/var/lib/mysql
 
+  backend:
+    image: cuc-24/backend
+    build:
+      dockerfile: backend/Dockerfile
+
 volumes:
   pdg_db:

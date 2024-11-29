@@ -84,4 +84,4 @@ def create_user():
 
 if __name__ == '__main__':
     create_tables()
-    app.run(host="0.0.0.0", threaded=True)
+    app.run(host="0.0.0.0", port=8484, threaded=True)

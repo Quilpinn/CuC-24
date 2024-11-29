@@ -42,7 +42,7 @@ def close_connection(connection):
 def create_tables():
     connection = create_connection()
     cursor = connection.cursor()
-    query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(255) NOT NULL, VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP)"
+    query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(4000) NOT NULL, VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP)"
     query2 = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME NOT NULL)"
     cursor.execute(query)
     cursor.execute(query2)
@@ -103,17 +103,17 @@ def authenticate_user():
     connection = create_connection()
     cursor = connection.cursor()
 
+    password = str(generate_sha512((data["password"])))
     username = data["username"]
-    password = generate_sha512((data["password"]))
 
     query = "SELECT * FROM Users WHERE username = %s AND password = %s"
     cursor.execute(query, (username, password))
     user = cursor.fetchone()
 
     if user:
-        return jsonify({"message": "ok", "hash": "123"}), 200
+        return jsonify({"status": "ok", "hash": "123"}), 200
     else:
-        return jsonify({"message": "Invalid credentials"}), 401
+        return jsonify({"status": "Invalid credentials"}), 401
 
 if __name__ == '__main__':
     create_tables()

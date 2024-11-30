@@ -174,10 +174,15 @@ def get_user():
 
     cursor.execute(query, (uuid[0]))
 
-    cursor.execute(query, ())
     res = cursor.fetchone()
 
-    return Response(res)
+    map = {
+        "USERNAME": res[0],
+        "INTERESTS": res[1],
+        "CITY": res[2]
+    }
+
+    return jsonify(map), 200
 
 
 @app.route(base_path + "/posts/create", methods=["POST"])

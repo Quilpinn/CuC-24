@@ -21,7 +21,7 @@ def generate_uuid():
     return '-'.join(''.join(random.choices(string.ascii_lowercase + string.digits, k=length)) for length in segments)
 
 def find_user_id_by_hash(connection, hash):
-    cursor = connection.curser()
+    cursor = connection.cursor()
     
     try:
         username_hash, password_hash = hash.split(":")
@@ -32,7 +32,7 @@ def find_user_id_by_hash(connection, hash):
 
     cursor.execute(query, (username_hash, password_hash))
 
-    res = curser.fetchone()
+    res = cursor.fetchone()
     return res[0] if res else None
 
 def create_connection():
@@ -86,7 +86,7 @@ def get_and_return_feed():
     return Response(status=200)
 
 # TODO: Still need to improve it. https://stackoverflow.com/questions/20646822/how-to-serve-static-files-in-flask
-# @app.route("cdn/<path:path>", methods=["GET"])
+# @app.route("cdn/", methods=["GET"])
 # def serve_images():
 #     return send_from_directory('pictures', path)
 

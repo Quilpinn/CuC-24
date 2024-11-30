@@ -19,7 +19,7 @@ export default function UserProfile({ params }) {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${apiUrl}/v1/users/get`, {
+        const response = await fetch(`${apiUrl}/api/v1/users/get`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

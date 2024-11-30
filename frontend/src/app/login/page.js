@@ -81,7 +81,7 @@ function LoginBox({ loginState, setLoginState }) {
           id="password"
           name="password"
           type="password"
-          label="Password"
+          label="Passwort"
           value={loginState.pass}
           onChange={(e) =>
             setLoginState({ ...loginState, pass: e.target.value })

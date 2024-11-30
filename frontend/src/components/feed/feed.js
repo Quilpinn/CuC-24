@@ -30,8 +30,9 @@ async function addParticipant(eventId) {
 }
 
 function Feed(props) {
-    const [posts, setPosts] = useState([]);
-    if (true) {
+    //const [posts, setPosts] = useState([]);
+    let posts = null;
+    if (false) {
 
     useEffect(() => {
         async function fetchFeed() {

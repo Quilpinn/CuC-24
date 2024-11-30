@@ -3,7 +3,9 @@ import "/src/app/globals.css";
 import React, { useState } from "react";
 import { setAuthentication, getAuthentication } from "/src/app/cockies";
 
-function InputBox({ children, label }) {
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+function InputBox({children, label}) {
   return (
     <div className="w-full mb-4">
       <label className="block text-gray-700 text-sm font-medium mb-2">
@@ -32,7 +34,7 @@ function LoginBox({ loginState, setLoginState }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:8484/api/v1/authenticate`, {
+      const response = await fetch(`${apiUrl}/api/v1/authenticate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

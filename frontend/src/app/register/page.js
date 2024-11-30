@@ -3,7 +3,7 @@ import "/src/app/globals.css";
 import React, { useState } from "react";
 import { setAuthentication } from "/src/app/cockies";
 
-const apiUrl = "https://probable-halibut-qg5pq4pg566c9vr6-8484.app.github.dev:8484";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 function InputBox({ children, label }) {
   return (

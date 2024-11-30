@@ -1,6 +1,10 @@
 "use client"
 import { getAuthentication, removeAuthentication, isAuthenticated } from "/src/app/cockies"
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 
 const Dropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,7 +25,7 @@ const Dropdown = () => {
 
     try {
       const response = await fetch(`localhost:8484/api/v1/user/get`, {
-        method: 'GET',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           hash: getAuthentication(),
@@ -49,7 +53,7 @@ const Dropdown = () => {
         className="w-12 h-12 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
         <img 
-          src={`${apiUrl}/src/images/default.PNG`}
+          src={`${apiUrl}/cdn/default.PNG`}
           alt="Dropdown trigger"
           class="w-full h-full object-cover"
         />
@@ -83,8 +87,8 @@ export function TopBar() {
       </div>
       <div className='flex justify-end gap-x-7 font-headline font-bold'>
         <a href="/me">Me</a>
-        { isAuthenticated() ? <a href="/login">Login</a>
-          : <Dropdown/>
+        { isAuthenticated() ? <Dropdown/> : 
+          <a href="/login">Login</a>
         }
       </div>
     </div>
@@ -101,17 +105,8 @@ export function NewPost() {
 
 
 
-async function Feed(props) {
+function Feed(props) {
   const [posts, setPosts] = useState([]);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  const feed = fetch(`${apiUrl}/api/v1/feed`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      hash: getAuthentication() // TODO insert search criteria or something here. 
-    })
-  })
 
   useEffect(() => {
     async function fetchFeed() {
@@ -126,7 +121,13 @@ async function Feed(props) {
         });
         
         const data = await response.json();
-        setPosts(data);
+        console.log(data)
+
+        if (!Array.isArray(data.posts)) {
+          throw new Error('Expected array of posts but received different data structure');
+        }
+
+        setPosts(data.posts);
       } catch (error) {
         console.error('Error fetching feed:', error);
       }
@@ -138,10 +139,10 @@ async function Feed(props) {
   return (
     <div className='flex flex-col items-center w-full py-5' {...props}>
       {posts.map(post => (
-        <div className="flex flex-col items-center" key={post.name} >
-          <div className="font-bold text-center text-xl">{post.name}</div>
-          <div className="italic text-center text-lg">{post.text}</div>
-          <Image src={post.image} alt="post" className="object-cover rounded-full mt-5 mb-3" width={300} height={300} />
+        <div className="flex flex-col items-center" key={post.HEADING} >
+          <div className="font-bold text-center text-xl">{post.HEADING}</div>
+          <div className="italic text-center text-lg">{post.CONTENT}</div>
+          {/*<Image src={post.image} alt="post" className="object-cover rounded-full mt-5 mb-3" width={300} height={300} />*/}
         </div>
       ))}
     </div>
@@ -149,6 +150,8 @@ async function Feed(props) {
 }
 
 export default function Home() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  console.log('API URL:', apiUrl);
   return (
     <div>
       <TopBar/>

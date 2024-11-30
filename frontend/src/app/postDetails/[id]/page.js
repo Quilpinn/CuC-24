@@ -43,8 +43,8 @@ export default function EventDetails({ params }) {
   const [comment, setComment] = useState("");
   const router = useRouter()
 
-  const handleCommentSubmit = async (heading, content, hash, eventId) => {
-    e.preventDefault
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
     try {
       await fetch(`${apiUrl}/api/v1/posts/create`, {
         method: "POST",
@@ -53,14 +53,14 @@ export default function EventDetails({ params }) {
           heading: eventData.heading,
           content: comment,
           hash: getAuthentication(),
-          eventId: id
-        })
-      })
+          eventId: id,
+        }),
+      });
+      router.push('/');
     } catch (error) {
-      console.log(error)
+      console.error("Error submitting comment:", error);
     }
-    router.push('/')
-  }
+  };
 
   const handleLike = () => setLikes(likes + 1);
   const handleTeilnehmen = () => setParticipants(participants + 1);
@@ -124,7 +124,7 @@ export default function EventDetails({ params }) {
   </div>
 
   {/* Comments Section */ }
-  <div className="p-6 border-t border-gray-200">
+  const CommentSection = () => <div className="p-6 border-t border-gray-200">
     {/* Comment Form */}
     <form onSubmit={handleCommentSubmit} className="mt-4 flex flex-col gap-2">
       <input
@@ -155,7 +155,7 @@ export default function EventDetails({ params }) {
         /> */}
         {eventData && <EventDetails/>}
         {/* Event Details */}
-
+        <CommentSection/>
       </div>
     </div>
   );

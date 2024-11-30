@@ -1,7 +1,7 @@
 "use client";
 import "/src/app/globals.css";
 import React, { useState } from "react";
-import { setAuthentication, getAuthentication } from "/src/app/cockies";
+import { setAuthentication } from "/src/services/cookies";
 import Link from "next/link";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -49,7 +49,9 @@ function LoginBox({ loginState, setLoginState }) {
         if (data.status !== "ok") {
           setMessage(data.status);
         } else {
+          console.log("logged in")
           setAuthentication(data.hash);
+          window.location = "/"
         }
       }
     } catch (error) {

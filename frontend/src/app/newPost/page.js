@@ -1,16 +1,22 @@
 "use client";
 import "/src/app/globals.css";
 import React, { useState } from "react";
+import { getAuthentication } from "/src/services/cookies"
 
 export default function NewPost() {
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   const [eventData, setEventData] = useState({
     image: null,
     title: "",
     description: "",
     date: "",
     time: "",
+    city: "",
     tags: "",
   });
+  const [message, setMessage] = useState("");
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -27,19 +33,26 @@ export default function NewPost() {
     console.log("Saving Event:", eventData);
     e.preventDefault();
     try {
-      const response = await fetch(`${apiUrl}/api/v1/posts/create`, {
+      console.log("Try Block ausgeführt.")
+      const response = await fetch(`${apiUrl}/api/v1/events/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          //to do
+          hash: getAuthentication(),
+          heading: eventData.title,
+          content: eventData.description,
+          city: eventData.city, 
+          time: eventData.time,
+          date: eventData.date,
+          interests: eventData.tags
         }),
       });
-
-      const data = await response.json();
-      if (data.status !== "ok") {
-        setMessage(data.status);
+      console.log(response)
+      
+      if (response.status == 201) {
+        window.location = "/"
       } else {
-        setAuthentication(data.hash);
+        setMessage(data.status);
       }
     } catch (error) {
       setMessage("Posting failed: " + error.message);
@@ -110,6 +123,16 @@ export default function NewPost() {
               className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
             />
           </div>
+          
+          <input
+              type="text"
+              placeholder="Veranstaltungsort"
+              value={eventData.city}
+              onChange={(e) =>
+                setEventData({ ...eventData, city: e.target.value })
+              }
+              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+            />
 
           {/* Tags */}
           <input

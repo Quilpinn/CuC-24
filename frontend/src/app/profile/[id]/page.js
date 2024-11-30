@@ -1,8 +1,11 @@
 "use client";
 import "/src/app/globals.css";
 import React, { useState, useEffect } from "react";
+import { use } from 'react';
 
-export default function UserProfile() {
+export default function UserProfile({ params }) {
+  const { id } = use(params);
+  console.log(id);
   const [userData, setUserData] = useState({
     //fetch data from bd
     name: "",
@@ -10,6 +13,41 @@ export default function UserProfile() {
     city: "",
     avatarUrl: "",
   });
+
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/v1/users/get`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username: id })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        const data = await response.json();
+
+        console.log(data)
+        
+        setUserData({
+          name: id || "",
+          interests: data.interests || "", // .join(", ") ? TODO?
+          city: data.city || "",
+          avatarUrl: data.avatarUrl || "",
+        });
+      } catch (error) {
+        console.error('Error fetching user data:', error); // TODO: HTML "User not found!" if this happens.
+      }
+    };
+  
+    fetchUserData();
+  }, [id]);
 
   // Generate a random avatar
   useEffect(() => {

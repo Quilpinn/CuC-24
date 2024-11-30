@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import eventImage from "/src/assets/img.png";
-import { use } from "react";
-import { getAuthentication } from "@/services/cookies";
-import { useRouter } from "next/navigation";
+import { use } from 'react';
+import { getAuthentication, checkAuth } from "@/services/cookies";
+import { useRouter } from 'next/navigation';
+import Link from 'next/link'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 

@@ -58,9 +58,7 @@ function RegisterBox({ registerState, setRegisterState }) {
       if (data.status !== "ok") {
         setMessage(data.status);
       } else {
-        console.log("logged in");
-        setAuthentication(data.hash);
-        router.push('/')
+        router.push('/login')
       }
     } catch (error) {
       setMessage("Registering failed: " + error.message);

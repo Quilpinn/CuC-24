@@ -85,20 +85,27 @@ def create_tables():
 def base_path_route():
     return Response(status=200)
 
-# TODO : "EVENT_HEADING" = Heading of mentioned event
 @app.route(base_path + "feed", methods=["POST"])
 def get_and_return_feed():
     try:
         connection = create_connection()
         cursor = connection.cursor()
 
-        posts_query = "SELECT PID, CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, TIMESTAMP, CREATED_BY_UUID, EVENT_QID FROM Posts ORDER BY TIMESTAMP DESC"
+        posts_query = """
+            SELECT 
+                p.PID, p.CONTENT_TYPE, p.HEADING, p.CONTENT, p.PICTURE_URL, 
+                p.TIMESTAMP, p.CREATED_BY_UUID, p.EVENT_QID, u.USERNAME 
+            FROM 
+                Posts p
+            LEFT JOIN 
+                Users u 
+            ON 
+                p.CREATED_BY_UUID = u.UUID
+            ORDER BY 
+                p.TIMESTAMP DESC
+        """
         cursor.execute(posts_query)
         posts = cursor.fetchall()
-
-        query_to_find_username = "SELECT USERNAME FROM Users WHERE UUID = d7mpxmih-pujgks9m-7kb2fmz3-a8mjovml"
-        cursor.execute(query_to_find_username, (str(event[3])))
-        username = cursor.fetchone()
 
         post_columns = [col[0] for col in cursor.description]
 
@@ -118,7 +125,7 @@ def get_and_return_feed():
 
             events_map = {
                 event[0]: {
-                    "USERNAME":username,
+                    "USERNAME": event[3],
                     "QEID": event[0],
                     "CITY": event[1],
                     "EVENT_DATE": event[2],
@@ -143,46 +150,41 @@ def get_and_return_feed():
         return jsonify({"posts": posts_with_events}), 200
 
     except Exception as e:
-        logger.error(f"Error retrieving feed!")
+        logger.error(f"Error retrieving feed: {e}")
         if 'connection' in locals():
             close_connection(connection)
-        return jsonify({"status": "An error happend while retrieving the feed"}), 500
-
-
-    except Exception as e:
-        logger.error(f"Error retrieving feed.")
-        if 'connection' in locals():
-            close_connection(connection)
-        return jsonify({"status": "An error happend while retrieving the feed"}), 500
+        return jsonify({"status": "An error occurred while retrieving the feed"}), 500
 
 # TODO: Docker compose file mapping for correct directory
 # @app.route('/cdn/<path:path>')
 # def serve_content(path):
 #     return send_from_directory('reports', path)
 
-# TODO: Implement user and posting finding/searching for profile page
 @app.route(base_path + "/users/get", methods=["POST"])
 def get_user():
     data = request.json
 
-    uuid = data["uuid"]
-    
+    username = data["username"]
+
     connection = create_connection()
     cursor = connection.cursor()
 
-    query = "SELECT USERNAME, INTERESTS, CITY FROM Users WHERE UUID = %s"
+    query = "SELECT USERNAME, INTERESTS, CITY FROM Users WHERE USERNAME = %s"
 
-    cursor.execute(query, (uuid[0]))
+    cursor.execute(query, (username,))
 
     res = cursor.fetchone()
 
-    map = {
-        "USERNAME": res[0],
-        "INTERESTS": res[1],
-        "CITY": res[2]
+    if res is None:
+        return jsonify({"error": "User not found"}), 404
+
+    user_data = {
+        "username": res[0],
+        "interests": res[1],
+        "city": res[2]
     }
 
-    return jsonify(map), 200
+    return jsonify(user_data), 200
 
 
 @app.route(base_path + "/posts/create", methods=["POST"])
@@ -276,6 +278,17 @@ def get_events_by_id():
     }
 
     return jsonify(map), 200
+
+@app.route(base_path + "/events/participate")
+def add_participant_to_event():
+    data = request.json
+
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    query = "SELECT * FROM "
+
+    return Response(status=204)
 
 @app.route(base_path + "/users/create", methods=["POST"])
 def create_user():

@@ -19,7 +19,7 @@ export default function UserProfile({ params }) {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${apiUrl}/v1/users/get`, {
+        const response = await fetch(`${apiUrl}/api/v1/users/get`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -34,12 +34,13 @@ export default function UserProfile({ params }) {
         const data = await response.json();
 
         console.log(data)
+        const interestsAsArray = JSON.parse(data.interests);
+        const interestsFormated = interestsAsArray.join(', ');
         
         setUserData({
           name: id || "",
-          interests: data.interests || "", // .join(", ") ? TODO?
+          interests: interestsFormated || "", // .join(", ") ? TODO?
           city: data.city || "",
-          avatarUrl: data.avatarUrl || "",
         });
       } catch (error) {
         console.error('Error fetching user data:', error); // TODO: HTML "User not found!" if this happens.
@@ -77,13 +78,13 @@ export default function UserProfile({ params }) {
         {/* Info Section */}
         <div className="w-full flex flex-col gap-4 text-left">
           {/* City */}
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-600">City:</h2>
+          <div className="flex justify-left gap-2 items-center">
+            <h2 className="text-lg font-semibold text-gray-600">Stadt:</h2>
             <p className="text-gray-800 font-medium">{userData.city}</p>
           </div>
           {/* Interests */}
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-600">Interests:</h2>
+          <div className="flex justify-left gap-2 items-center">
+            <h2 className="text-lg font-semibold text-gray-600">Interessen:</h2>
             <p className="text-gray-800 font-medium">{userData.interests}</p>
           </div>
         </div>

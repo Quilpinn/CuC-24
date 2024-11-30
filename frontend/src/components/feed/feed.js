@@ -1,105 +1,224 @@
-import { getAuthentication, removeAuthentication } from "/src/services/cookies"
-import React, { useState, useEffect } from 'react';
+import { getAuthentication } from "/src/services/cookies";
+import React, { useState, useEffect } from "react";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-async function addParticipant(eventid) {
-    console.log("add participant called")
-    fetch(`${apiUrl}/api/v1/participant/add`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            hash: getAuthentication(),
-            eventid: eventid
-        })
-    }).catch(error => {
-        console.error('Failed to add participant:', error);
-    });
+
+const handleShare = () => {
+    const shareLink = `${window.location.href}`;
+    navigator.clipboard.writeText(shareLink);
+    alert(`Der Event-Link wurde kopiert: ${shareLink}`);
+  };
+async function addParticipant(eventId) {
+    try {
+        const response = await fetch(`${apiUrl}/api/v1/participant/add`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                hash: getAuthentication(),
+                eventid: eventId,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to add participant.");
+        }
+        console.log("Participant added successfully.");
+    } catch (error) {
+        console.error("Failed to add participant:", error);
+    }
 }
 
-
-
 function Feed(props) {
-    const [posts, setPosts] = useState([]);
+    let posts = null;
+    if (false) {const [posts, setPosts] = useState([]);
 
     useEffect(() => {
         async function fetchFeed() {
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL;
                 const response = await fetch(`${apiUrl}/api/v1/feed`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        hash: getAuthentication(), // TODO insert search criteria or something here. 
-                    })
+                        hash: getAuthentication(),
+                    }),
                 });
 
                 const data = await response.json();
-                console.log(data)
 
                 if (!Array.isArray(data.posts)) {
-                    throw new Error('Expected array of posts but received different data structure');
+                    throw new Error("Expected array of posts but received different data structure");
                 }
 
                 setPosts(data.posts);
             } catch (error) {
-                console.error('Error fetching feed:', error);
+                console.error("Error fetching feed:", error);
             }
         }
 
         fetchFeed();
-    }, []);
+    }, []);}
+    else {
+        posts = [
+                {
+                    "CONTENT": "tette",
+                    "CONTENT_TYPE": "event",
+                    "CREATED_BY_UUID": "6dmg0mnw-gtevjkb9-oub13tqe-bht05ypv",
+                    "EVENT_QID": "w7g5h562-dnmckqnr-qmsja46m-i8wb1rvm",
+                    "HEADING": "testt",
+                    "PICTURE_URL": null,
+                    "PID": 2,
+                    "TIMESTAMP": "Sat, 30 Nov 2024 18:23:53 GMT",
+                    "event_details": {
+                        "CITY": "tt",
+                        "CREATED_BY_UUID": "6dmg0mnw-gtevjkb9-oub13tqe-bht05ypv",
+                        "EVENT_DATE": "2000-01-01 00:00",
+                        "PARTICIPANTS": "",
+                        "QEID": "w7g5h562-dnmckqnr-qmsja46m-i8wb1rvm"
+                    }
+                },
+                {
+                    "CONTENT": "tette",
+                    "CONTENT_TYPE": "post",
+                    "CREATED_BY_UUID": "6dmg0mnw-gtevjkb9-oub13tqe-bht05ypv",
+                    "EVENT_QID": "w7g5h562-dnmckqnr-qmsja46m-i8wb1rvm",
+                    "HEADING": "testt", 
+                    "PICTURE_URL": null,
+                    "PID": 2,
+                    "TIMESTAMP": "Sat, 30 Nov 2024 18:23:53 GMT",
+                    "EVENT_HEADING": "tette"
+                },
+                {
+                    "CONTENT": "test",
+                    "CONTENT_TYPE": "event",
+                    "CREATED_BY_UUID": "6dmg0mnw-gtevjkb9-oub13tqe-bht05ypv",
+                    "EVENT_QID": "nwduwlsm-qf7o95n7-0iodwdjk-q58kavsk",
+                    "HEADING": "test",
+                    "PICTURE_URL": null,
+                    "PID": 1,
+                    "TIMESTAMP": "Sat, 30 Nov 2024 18:21:46 GMT",
+                    "event_details": {
+                        "CITY": "test",
+                        "CREATED_BY_UUID": "6dmg0mnw-gtevjkb9-oub13tqe-bht05ypv",
+                        "EVENT_DATE": "2000-01-01 00:00",
+                        "PARTICIPANTS": "",
+                        "QEID": "nwduwlsm-qf7o95n7-0iodwdjk-q58kavsk"
+                    }
+                }
+            ]
+    }
 
     return (
-        <div className='flex flex-col items-center w-full py-5' {...props}>
-            {posts.map(post => {
-                if (post.CONTENT_TYPE == "event") {
-                    let participants = null;
-                    if (post.PARTICIPANTS != null) {
-                        participants = post.PARTICIPANTS.split("; ");
-                    }
-                return (
-                    <div className="flex flex-col items-center" key={post.HEADING} >
-                        <div className="font-bold text-center text-xl">{post.HEADING}</div>
-                        <div className="italic text-center text-lg">{post.CONTENT}</div>
-                        {/*<Image src={post.IMAGE} alt="post" className="object-cover rounded-full mt-5 mb-3" width={300} height={300} />*/}
-                        <div className="">{post.CITY}</div>
-                        <div className="">{post.EVENT_DATE}</div>
-                        <div className="">Geposted am {post.TIMESTAMP} von {post.USERNAME}</div>
-                        {participants == null ? (
-                            <a onClick={() => addParticipant(post.QUEID)} href="#">
-                                Melde dich als erster an!
-                            </a>
-                            ) : participants.includes(getUser()) ? (
-                            <div className="">
-                                {participants.length - 1} Teilnehmende außer dir
+        <div className="flex flex-col items-center w-full py-5 bg-gray-100 min-h-screen" {...props}>
+            <h1 className="text-3xl font-bold text-center mb-5">Dein Feed</h1>
+            {posts.map((post) => {
+                if (post.CONTENT_TYPE === "event") {
+                    const participants = post.PARTICIPANTS
+                        ? post.PARTICIPANTS.split("; ")
+                        : null;
+
+                    return (
+                        <div
+                            className="bg-white shadow-lg rounded-lg p-6 w-4/5 mb-6"
+                            key={post.HEADING}
+                        >
+                            {/* Heading */}
+                            <h2 className="text-xl font-bold mb-2 text-gray-800">
+                                {post.HEADING}
+                            </h2>
+
+                            {/* Content */}
+                            <p className="text-gray-600 italic">{post.CONTENT}</p>
+
+                            {/* City and Date */}
+                            <div className="mt-4">
+                                <p>
+                                    <strong>📍 Stadt:</strong> {post.event_details.CITY}
+                                </p>
+                                <p>
+                                    <strong>🕒 Datum:</strong>{" "}
+                                    {new Date(post.event_details.EVENT_DATE).toLocaleString("de-DE", {
+                                        dateStyle: "medium",
+                                        timeStyle: "short",
+                                    })}
+                                    Uhr
+                                </p>
                             </div>
-                            ) : (
-                            <div className="">
-                                {participants.length} Teilnehmende.{" "}
-                                <a onClick={() => addParticipant(post.UUID)} href="#">
-                                Auch teilnehmen?
+
+                            {/* Participants */}
+                            <div className="mt-4">
+                                {participants == null ? (
+                                    <a
+                                        onClick={() => addParticipant(post.EVENT_QID)}
+                                        href="#"
+                                        className="text-blue-500 hover:underline"
+                                    >
+                                        Melde dich als erster an!
+                                    </a>
+                                ) : participants.includes(getAuthentication()) ? (
+                                    <p>
+                                        Du bist dabei!{" "}
+                                        {participants.length - 1 > 0 &&
+                                            `+ ${participants.length - 1} Teilnehmer.`}
+                                    </p>
+                                ) : (
+                                    <p>
+                                        {participants.length} Teilnehmer.{" "}
+                                        <a
+                                            onClick={() => addParticipant(post.EVENT_QID)}
+                                            href="#"
+                                            className="text-blue-500 hover:underline"
+                                        >
+                                            Auch teilnehmen?
+                                        </a>
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="flex gap-4 mt-4">
+                                <a
+                                    href={`/postDetails/${post.EVENT_QID}`}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                                >
+                                    Details ansehen
+                                </a>
+                                <a
+                                    href="#"
+                                    onClick={handleShare}
+                                    className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition"
+                                >
+                                    📤 Teilen
                                 </a>
                             </div>
-                        )}
-                        <a className="" href={`/postDetails/${post.QEID}`}>Repost</a>
-                    </div>
-                );
-                }
-                else if (post.CONTENT_TYPE == "post") {
+
+                            {/* Timestamp */}
+                            <div className="text-gray-400 text-sm mt-3">
+                                Geposted am:{" "}
+                                {new Date(post.TIMESTAMP).toLocaleString("de-DE", {
+                                    dateStyle: "long",
+                                    timeStyle: "short",
+                                })}
+                            </div>
+                        </div>
+                    );
+                } else if (post.CONTENT_TYPE === "post") {
                     return (
-                        <div className="flex flex-col items-center" key={post.HEADING} >
-                            <div className="font-bold text-center text-xl">{post.HEADING}</div>
-                            <div className="italic text-center text-lg">{post.CONTENT}</div>
-                            {/* TODO */}
-                            {/*<Image src={post.IMAGE} alt="post" className="object-cover rounded-full mt-5 mb-3" width={300} height={300} />*/}
-                            <div className="">{post.HEADING /* replace by original heading */}</div>
+                        <div
+                            className="bg-white shadow-md rounded-lg p-6 w-4/5 mb-6"
+                            key={post.HEADING}
+                        >
+                            <h2 className="text-xl font-bold mb-2 text-gray-800">
+                                {post.HEADING}
+                            </h2>
+                            <p className="text-gray-600 italic">{post.CONTENT}</p>
+                            {/* Add any additional post details here */}
                         </div>
                     );
                 }
             })}
         </div>
-    )
+    );
 }
 
-export default Feed
+export default Feed;

@@ -1,9 +1,12 @@
+"use client"
 import { getAuthentication, removeAuthentication, isAuthenticated } from "/src/app/cockies"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Dropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState('Choose an option');
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const options = [
     "Me",
@@ -46,9 +49,9 @@ const Dropdown = () => {
         className="w-12 h-12 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
         <img 
-          src="/backend/src/images/default.PNG" 
+          src={`${apiUrl}/src/images/default.PNG`}
           alt="Dropdown trigger"
-          className="w-full h-full object-cover"
+          class="w-full h-full object-cover"
         />
       </button>
 
@@ -96,24 +99,45 @@ export function NewPost() {
 
 
 
+
+
 async function Feed(props) {
-  
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL
+  const [posts, setPosts] = useState([]);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const feed = fetch(`${apiUrl}/api/v1/feed`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      hash: getAuthentication(),
-      username: registerState.user,
-      password: registerState.pass,
-      email: registerState.mail
+      hash: getAuthentication() // TODO insert search criteria or something here. 
     })
   })
 
+  useEffect(() => {
+    async function fetchFeed() {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${apiUrl}/api/v1/feed`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            hash: getAuthentication(), // TODO insert search criteria or something here. 
+          })
+        });
+        
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        console.error('Error fetching feed:', error);
+      }
+    }
+
+    fetchFeed();
+  }, []);
+
   return (
     <div className='flex flex-col items-center w-full py-5' {...props}>
-      {feed.map(post => (
+      {posts.map(post => (
         <div className="flex flex-col items-center" key={post.name} >
           <div className="font-bold text-center text-xl">{post.name}</div>
           <div className="italic text-center text-lg">{post.text}</div>

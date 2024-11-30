@@ -50,7 +50,7 @@ export default function Dropdown({setIsAuthenticated}) {
         setIsOpen(false);
 
         if (option == "Me") {
-            window.location.href = `/profile/${encodeURIComponent(username)}`;
+            window.location.href = `/profile/${user.uuid}`;
         }
         else if (option == "Logout") {
             
@@ -71,7 +71,7 @@ export default function Dropdown({setIsAuthenticated}) {
             </button>
 
             {/* Dropdown menu */}
-            {isOpen && (
+            {isOpen && user && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
                     <ul className="py-1">
                         {options.map((option) => (

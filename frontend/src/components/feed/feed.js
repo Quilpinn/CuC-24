@@ -53,20 +53,21 @@ function Feed(props) {
     return (
         <div className='flex flex-col items-center w-full py-5' {...props}>
             {posts.map(post => {
-                let participants = null;
-                if (post.PARTICIPANTS != null) {
-                  participants = post.PARTICIPANTS.split("; ");
-                }
+                if (post.CONTENT_TYPE == "event") {
+                    let participants = null;
+                    if (post.PARTICIPANTS != null) {
+                        participants = post.PARTICIPANTS.split("; ");
+                    }
                 return (
                     <div className="flex flex-col items-center" key={post.HEADING} >
                         <div className="font-bold text-center text-xl">{post.HEADING}</div>
                         <div className="italic text-center text-lg">{post.CONTENT}</div>
                         {/*<Image src={post.IMAGE} alt="post" className="object-cover rounded-full mt-5 mb-3" width={300} height={300} />*/}
-                        <div className="">{post.EVENT_ADDRESS}</div>
-                        <div className="">{post.DATETIME}</div>
+                        <div className="">{post.CITY}</div>
+                        <div className="">{post.EVENT_DATE}</div>
                         <div className="">Geposted am {post.TIMESTAMP} von {post.USERNAME}</div>
                         {participants == null ? (
-                            <a onClick={() => addParticipant(post.UUID)} href="#">
+                            <a onClick={() => addParticipant(post.QUEID)} href="#">
                                 Melde dich als erster an!
                             </a>
                             ) : participants.includes(getUser()) ? (
@@ -81,9 +82,21 @@ function Feed(props) {
                                 </a>
                             </div>
                         )}
-                        <div className="" onClick={console.log("reposing not implemented yet")}>Repost</div>
+                        <a className="" href={`/postDetails/${post.QEID}`}>Repost</a>
                     </div>
                 );
+                }
+                else if (post.CONTENT_TYPE == "post") {
+                    return (
+                        <div className="flex flex-col items-center" key={post.HEADING} >
+                            <div className="font-bold text-center text-xl">{post.HEADING}</div>
+                            <div className="italic text-center text-lg">{post.CONTENT}</div>
+                            {/* TODO */}
+                            {/*<Image src={post.IMAGE} alt="post" className="object-cover rounded-full mt-5 mb-3" width={300} height={300} />*/}
+                            <div className="">{post.HEADING /* replace by original heading */}</div>
+                        </div>
+                    );
+                }
             })}
         </div>
     )

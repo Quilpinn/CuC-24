@@ -87,7 +87,7 @@ function LoginBox({ loginState, setLoginState }) {
           type="submit"
           className="bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 px-4 rounded-lg hover:shadow-lg transition-all"
         >
-          Log In
+         Einloggen
         </button>
         {message && <p className="text-red-500 text-sm mt-2">{message}</p>}
       </form>

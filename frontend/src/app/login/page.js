@@ -1,7 +1,7 @@
 "use client";
 import "/src/app/globals.css";
 import React, { useState } from "react";
-import { setAuthentication, getAuthentication } from "/src/app/cockies";
+import { setAuthentication } from "/src/services/cookies";
 import Link from "next/link";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;

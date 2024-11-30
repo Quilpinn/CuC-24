@@ -20,7 +20,7 @@ export function removeAuthentication() {
   Cookies.remove('auth')
 }
 
-export function isAuthenticated() {
+export function checkAuth() {
   try {
       const value = Cookies.get('auth');
       return value != null;

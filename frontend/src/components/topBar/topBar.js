@@ -1,20 +1,16 @@
-import { isAuthenticated } from "/src/services/cookies"
+import { checkAuth } from "/src/services/cookies"
 import Dropdown from "./dropDown";
+import Link from 'next/link'
+import { useState } from "react";
 
-export function TopBar() {
+export default function TopBar() {
+    const [isAuthenticated, setIsAuthenticated] = useState()
+
     return (
-        <div className='flex justify-between items-center w-full max-w-screen-lg topbar py-5 px-10 gap-x-7'>
-            <div className='w-16'>
-                <a href="/calendar">Kalender</a>
-            </div>
-            <div className='flex justify-end gap-x-7 font-headline font-bold'>
-                <a href="/me">Me</a>
-                {isAuthenticated() ? <Dropdown /> :
-                    <a href="/login">Login</a>
-                }
-            </div>
+        <div className='flex justify-between items-center w-full topbar py-5 px-10 gap-x-7'>
+        <div>STEPZZ</div>
+        {isAuthenticated && <Dropdown setIsAuthenticated={setIsAuthenticated} /> }
+        {!isAuthenticated && <Link href="/login">Login</Link>}
         </div>
     );
 }
-
-export default TopBar;

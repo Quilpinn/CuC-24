@@ -1,5 +1,6 @@
 import { getAuthentication, removeAuthentication } from "@/services/cookies";
 import React, { useState, useEffect } from 'react';
+import { useRouter } from "next/navigation"
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -19,9 +20,10 @@ async function getUser() {
     return username;
 }
 
-export default function Dropdown() {
+export default function Dropdown(setIsAuthenticated) {
     const [isOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState('Choose an option');
+    const router = useRouter()
 
     const options = [
         "Me",
@@ -41,7 +43,8 @@ export default function Dropdown() {
         }
         else if (option == "Logout") {
             removeAuthentication();
-            window.location.href = "/";
+            setIsAuthenticated(false)
+            router.push("/")
         }
     };
 

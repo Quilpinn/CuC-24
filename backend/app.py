@@ -1,8 +1,7 @@
 from flask import Flask, jsonify, Response, request, send_from_directory
 from flask_cors import CORS, cross_origin
-import mysql.connector, logging, random, string, os, sys, json
+import mysql.connector, logging, random, string, os, sys, json, hashlib
 from mysql.connector import errors
-import hashlib
 
 logger = logging.getLogger("backend-app-logger")
 frontend_url = os.getenv("FRONTEND_URL")
@@ -281,7 +280,7 @@ def get_events_by_id():
 
     return jsonify(map), 200
 
-@app.route(base_path + "/events/participate")
+@app.route(base_path + "/events/participate", methods=["POST"])
 def add_participant_to_event():
     data = request.json
 
@@ -290,10 +289,34 @@ def add_participant_to_event():
 
     query = "SELECT PARTICIPANTS FROM Events WHERE QEID = %s"
     cursor.execute(query, (data["eventId"],))
-    res = cursor.fetchone
+    res = cursor.fetchone()
+    
+    if res is None:
+        return Response("Event not found", status=404)
 
-    uuid = find_user_id_by_hash(connection, hash_cookie)
+    current_participants = res[0] if res[0] else ""
     hash_cookie = data["hash"]
+    uuid = find_user_id_by_hash(connection, hash_cookie)
+    
+    query2 = "SELECT USERNAME FROM Users WHERE UUID = %s"
+    cursor.execute(query2, (uuid,))
+    res_username = cursor.fetchone()
+
+    if res_username is None:
+        return Response("User not found", status=404)
+
+    username = res_username[0]
+
+    participants_list = current_participants.split(';') if current_participants else []
+    if username not in participants_list:
+        participants_list.append(username)
+
+    updated_participants = ";".join(participants_list)
+    
+    query3 = "UPDATE Events SET PARTICIPANTS = %s WHERE QEID = %s"
+    cursor.execute(query3, (updated_participants, data["eventId"]))
+
+    connection.commit()
 
     return Response(status=204)
 

@@ -20,6 +20,7 @@ services:
       retries: 10
     volumes:
       - db_data:/var/lib/mysql
+      - ./backend/cdn/:/cdn/
 
   backend:
     image: cuc-24/backend
@@ -35,7 +36,7 @@ services:
     expose:
       - '8484'
     environment:
-      - FRONTEND_URL=https://fuzzy-fishstick-jj7r64gvgrhpgq5-3000.app.github.dev/
+      - FRONTEND_URL=http://localhost:3000
 
   frontend:
     image: cuc-24/frontend
@@ -52,7 +53,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - NEXT_PUBLIC_API_URL=https://fuzzy-fishstick-jj7r64gvgrhpgq5-8484.app.github.dev:8484
+      - NEXT_PUBLIC_API_URL=http://localhost:8484
 
 volumes:
   db_data:

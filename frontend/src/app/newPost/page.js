@@ -1,6 +1,7 @@
 "use client";
 import "/src/app/globals.css";
 import React, { useState } from "react";
+import { getAuthentication } from "/src/app/cockies"
 
 export default function NewPost() {
   const [eventData, setEventData] = useState({
@@ -31,7 +32,13 @@ export default function NewPost() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          //to do
+          hash: getAuthentication(),
+          heading: eventData.title,
+          content: eventData.description,
+          city: eventData.city, 
+          time: eventData.time,
+          date: eventData.date,
+          interests: eventData.tags
         }),
       });
 
@@ -110,6 +117,16 @@ export default function NewPost() {
               className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
             />
           </div>
+          
+          <input
+              type="text"
+              placeholder="Veranstaltungsort"
+              value={eventData.city}
+              onChange={(e) =>
+                setEventData({ ...eventData, city: e.target.value })
+              }
+              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+            />
 
           {/* Tags */}
           <input

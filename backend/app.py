@@ -85,7 +85,6 @@ def create_tables():
 def base_path_route():
     return Response(status=200)
 
-# TODO : "EVENT_HEADING" = Heading of mentioned event
 @app.route(base_path + "feed", methods=["POST"])
 def get_and_return_feed():
     try:
@@ -161,7 +160,6 @@ def get_and_return_feed():
 # def serve_content(path):
 #     return send_from_directory('reports', path)
 
-# TODO: Implement user and posting finding/searching for profile page
 @app.route(base_path + "/users/get", methods=["POST"])
 def get_user():
     data = request.json

@@ -4,6 +4,9 @@ import React, { useState } from "react";
 import { getAuthentication } from "/src/services/cookies"
 
 export default function NewPost() {
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   const [eventData, setEventData] = useState({
     image: null,
     title: "",
@@ -44,12 +47,12 @@ export default function NewPost() {
           interests: eventData.tags
         }),
       });
-      console.log("fetch ausgeführt.")
-      const data = await response.json();
-      if (data.status !== "ok") {
-        setMessage(data.status);
+      console.log(response)
+      
+      if (response.status == 201) {
+        window.location = "/"
       } else {
-        setAuthentication(data.hash);
+        setMessage(data.status);
       }
     } catch (error) {
       setMessage("Posting failed: " + error.message);

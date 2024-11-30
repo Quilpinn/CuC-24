@@ -38,6 +38,7 @@ function RegisterBox({ registerState, setRegisterState }) {
     try {
       const interestsArray = registerState.interests.split(',')
 
+      console.log("before fetch")
       const response = await fetch(`${apiUrl}/api/v1/users/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,12 +50,15 @@ function RegisterBox({ registerState, setRegisterState }) {
           city: registerState.city
         }),
       });
+      console.log("after fetch")
 
       const data = await response.json();
       if (data.status !== "ok") {
         setMessage(data.status);
       } else {
+        console.log("logged in");
         setAuthentication(data.hash);
+        window.location = "/"
       }
     } catch (error) {
       setMessage("Registering failed: " + error.message);

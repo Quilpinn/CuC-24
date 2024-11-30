@@ -49,7 +49,9 @@ function LoginBox({ loginState, setLoginState }) {
         if (data.status !== "ok") {
           setMessage(data.status);
         } else {
+          console.log("logged in")
           setAuthentication(data.hash);
+          window.location = "/"
         }
       }
     } catch (error) {

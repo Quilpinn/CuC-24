@@ -1,10 +1,21 @@
 "use client"
-import { getAuthentication, removeAuthentication, isAuthenticated } from "/src/app/cockies"
+import { getAuthentication, removeAuthentication } from "/src/app/cockies"
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+
+function isAuthenticated() {
+  try {
+      const value = Cookies.get('auth');
+      return value != null;
+  }
+  catch {
+      return false;
+  }
+  
+}
 
 async function getUser() {
   try {
@@ -61,7 +72,7 @@ const Dropdown = () => {
         <img 
           src={`${apiUrl}/cdn/default.PNG`}
           alt="Dropdown trigger"
-          class="w-full h-full object-cover"
+          className="w-full h-full object-cover"
         />
       </button>
 
@@ -154,8 +165,10 @@ function Feed(props) {
 
   return (
     <div className='flex flex-col items-center w-full py-5' {...props}>
-      {posts.map(post => (
-        <div className="flex flex-col items-center" key={post.HEADING} >
+      {posts.map(post => {
+        const participants = post.PARTICIPANTS.split("; ");
+        return (
+          <div className="flex flex-col items-center" key={post.HEADING} >
           <div className="font-bold text-center text-xl">{post.HEADING}</div>
           <div className="italic text-center text-lg">{post.CONTENT}</div>
           {/*<Image src={post.IMAGE} alt="post" className="object-cover rounded-full mt-5 mb-3" width={300} height={300} />*/}
@@ -163,14 +176,23 @@ function Feed(props) {
           <div className="">{post.DATETIME}</div>
           <div className="">Geposted am {post.DATE_POSTED} von {post.USER}</div>
           {
-          post.PARTICIPANTS.includes() ? 
-          <div className="">{post.PARTICIPANTS.length()-1} Teilnehmene außer dir</div>
-           : 
-          <div className="">{post.PARTICIPANTS.length()} Teilnehmene. <a onClick={addParticipant(post.UUID)}>Auch teilnehmen?</a></div>
+            participants.includes(getUser()) ? (
+              <div className="">
+                {participants.length - 1} Teilnehmende außer dir
+              </div>
+            ) : (
+              <div className="">
+                {participants.length} Teilnehmende.{" "}
+                <a onClick={() => addParticipant(post.UUID)} href="#">
+                  Auch teilnehmen?
+                </a>
+              </div>
+            )
           }
           <div className="" onClick={console.log("reposing not implemented yet")}>Repost</div>
         </div>
-      ))}
+      );
+    })}
     </div>
   )
 }
@@ -181,7 +203,7 @@ export default function Home() {
   return (
     <div>
       <TopBar/>
-      <Feed/>
+      {<Feed/>}
     </div>
   );
 }

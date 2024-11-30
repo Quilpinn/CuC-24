@@ -17,9 +17,10 @@ function InputBox({ children, label }) {
   );
 }
 
-function TextInput({ label, ...props }) {
+function TextInput({ label, hint, ...props }) {
   return (
     <InputBox label={label}>
+      {hint ?? <div>{hint}</div>}
       <input
         type="text"
         className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
@@ -99,6 +100,7 @@ function RegisterBox({ registerState, setRegisterState }) {
         <TextInput
           id="interests"
           name="interests"
+          hint="Bitte gib eine ',' separierte Liste deiner Interessen an."
           type="text"
           label="Interessen"
           value={registerState.interests}

@@ -2,6 +2,7 @@
 import "/src/app/globals.css";
 import React, { useState } from "react";
 import { setAuthentication, getAuthentication } from "/src/app/cockies";
+import Link from "next/link";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -90,17 +91,17 @@ function LoginBox({ loginState, setLoginState }) {
         </button>
         {message && <p className="text-red-500 text-sm mt-2">{message}</p>}
       </form>
-      <p className="text-center text-gray-600 text-sm mt-4">
+      {/* <p className="text-center text-gray-600 text-sm mt-4">
         Passwort vergessen?{" "}
         <a href="#" className="text-pink-500 hover:underline">
         Zurücksetzen
         </a>
-      </p>
+      </p> */}
       <p className="text-center text-gray-600 text-sm mt-2">
       Sie haben noch kein Konto?{" "}
-        <a href="#" className="text-pink-500 hover:underline">
+        <Link href="/register" className="text-pink-500 hover:underline">
           Register
-        </a>
+        </Link>
       </p>
     </div>
   );

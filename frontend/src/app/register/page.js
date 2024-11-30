@@ -2,6 +2,7 @@
 import "/src/app/globals.css";
 import React, { useState } from "react";
 import { setAuthentication } from "/src/app/cockies";
+import Link from "next/link";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -121,9 +122,9 @@ function RegisterBox({ registerState, setRegisterState }) {
       </form>
       <p className="text-center text-gray-600 text-sm mt-4">
       Hast du schon ein Konto?{" "}
-        <a href="#" className="text-pink-500 hover:underline">
-        Einloggen
-        </a>
+        <Link href="/login" className="text-pink-500 hover:underline">
+          Einloggen
+        </Link>
       </p>
     </div>
   );

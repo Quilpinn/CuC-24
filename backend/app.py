@@ -117,16 +117,8 @@ def get_and_return_feed():
         events_map = {}
         if event_ids:
             placeholders = ",".join(["%s"] * len(event_ids))
-            events_query = f"""
-            SELECT 
-                QEID, 
-                CITY, 
-                EVENT_DATE, 
-                CREATED_BY_UUID, 
-                COALESCE(PARTICIPANTS, '') AS PARTICIPANTS 
-            FROM Events 
-            WHERE QEID IN ({placeholders})
-            """
+            events_query = f"SELECT QEID, CITY, EVENT_DATE, CREATED_BY_UUID, PARTICIPANTS FROM Events WHERE QEID IN ({placeholders})"
+
             cursor.execute(events_query, tuple(event_ids))
             events = cursor.fetchall()
 
@@ -217,19 +209,16 @@ def create_event():
         event_u_id = generate_uuid()
         cursor = connection.cursor()
 
-        # Debugging: Log parameters to check their values
         print(f"Parameters for Posts: ('event', {heading}, {content}, {None}, {uuid}, {event_u_id})")
 
         query1 = "INSERT INTO Posts (CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID, EVENT_QID) VALUES (%s, %s, %s, %s, %s, %s)"
         query2 = "INSERT INTO Events (QEID, CITY, EVENT_DATE, CREATED_BY_UUID) VALUES (%s, %s, %s, %s)"
 
-        # Ensure all parameters are valid types
         cursor.execute(query1, ("event", str(heading), str(content), None, str(uuid), str(event_u_id)))
         cursor.execute(query2, (str(event_u_id), str(city), f"{event_date} {event_time}", str(uuid)))
         connection.commit()
     except Exception as e:
         connection.rollback()
-        print(f"Error: {e}")  # Log error for debugging
         raise e
     finally:
         close_connection(connection)
@@ -248,7 +237,6 @@ def create_user():
     interests_json = json.dumps(data["interests"])
     
     line = (generate_uuid(), data["username"], email, password, data["city"], interests_json, 0)
-
 
     query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, CITY, INTERESTS, VERIFIED) VALUES (%s, %s, %s, %s, %s, %s, %s)"
 

@@ -161,7 +161,7 @@ def get_and_return_feed():
 # def serve_content(path):
 #     return send_from_directory('reports', path)
 
-@app.route(base_path + "/users/get", methods=["POST"])
+@app.route(base_path + "/users/get_by_username", methods=["POST"])
 def get_user():
     data = request.json
 
@@ -187,6 +187,59 @@ def get_user():
 
     return jsonify(user_data), 200
 
+@app.route(base_path + "/users/get_by_hash", methods=["POST"])
+def get_user():
+    data = request.json
+
+    hash = data["hash"]
+
+    connection = create_connection()
+    uuid = find_user_id_by_hash(connection, hash)
+
+    cursor = connection.cursor()
+
+    query = "SELECT USERNAME, INTERESTS, CITY FROM Users WHERE UUID = %s"
+
+    cursor.execute(query, (uuid,))
+
+    res = cursor.fetchone()
+
+    if res is None:
+        return jsonify({"error": "User not found"}), 404
+
+    user_data = {
+        "username": res[0],
+        "interests": res[1],
+        "city": res[2]
+    }
+
+    return jsonify(user_data), 200
+
+@app.route(base_path + "/users/get_by_id", methods=["POST"])
+def get_user():
+    data = request.json
+
+    uuid = data["uuid"]
+
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    query = "SELECT USERNAME, INTERESTS, CITY FROM Users WHERE UUID = %s"
+
+    cursor.execute(query, (uuid,))
+
+    res = cursor.fetchone()
+
+    if res is None:
+        return jsonify({"error": "User not found"}), 404
+
+    user_data = {
+        "username": res[0],
+        "interests": res[1],
+        "city": res[2]
+    }
+
+    return jsonify(user_data), 200
 
 @app.route(base_path + "/posts/create", methods=["POST"])
 def create_post():

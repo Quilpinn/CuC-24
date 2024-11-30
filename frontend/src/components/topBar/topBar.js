@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState } from "react";
 
 export default function TopBar() {
-    const [isAuthenticated, setIsAuthenticated] = useState()
+    const [isAuthenticated, setIsAuthenticated] = useState(checkAuth())
 
     return (
         <div className='flex justify-between items-center w-full topbar py-5 px-10 gap-x-7'>

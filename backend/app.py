@@ -91,21 +91,11 @@ def get_and_return_feed():
         connection = create_connection()
         cursor = connection.cursor()
 
-        posts_query = """
-        SELECT 
-            PID, 
-            CONTENT_TYPE, 
-            HEADING, 
-            CONTENT, 
-            PICTURE_URL, 
-            TIMESTAMP, 
-            CREATED_BY_UUID, 
-            EVENT_QID 
-        FROM Posts 
-        ORDER BY TIMESTAMP DESC
-        """
+        posts_query = "SELECT PID, CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, TIMESTAMP, CREATED_BY_UUID, EVENT_QID FROM Posts ORDER BY TIMESTAMP DESC"
         cursor.execute(posts_query)
         posts = cursor.fetchall()
+
+        post_columns = [col[0] for col in cursor.description]
 
         if not posts:
             logger.warning("No posts in feed found.")
@@ -118,34 +108,46 @@ def get_and_return_feed():
         if event_ids:
             placeholders = ",".join(["%s"] * len(event_ids))
             events_query = f"SELECT QEID, CITY, EVENT_DATE, CREATED_BY_UUID, PARTICIPANTS FROM Events WHERE QEID IN ({placeholders})"
-
             cursor.execute(events_query, tuple(event_ids))
             events = cursor.fetchall()
 
             events_map = {
-                event[0]: dict(zip([col[0] for col in cursor.description], event))
+                event[0]: {
+                    "QEID": event[0],
+                    "CITY": event[1],
+                    "EVENT_DATE": event[2],
+                    "CREATED_BY_UUID": str(event[3]),
+                    "PARTICIPANTS": event[4] or "",
+                }
                 for event in events
             }
 
         posts_with_events = []
         for post in posts:
-            post_dict = dict(zip([col[0] for col in cursor.description], post))
+            post_dict = dict(zip(post_columns, post))
             post_event_qid = post[7]
 
             if post_event_qid in events_map:
                 post_dict["event_details"] = events_map[post_event_qid]
-                post_dict["event_details"]["PARTICIPANTS"] = post_dict["event_details"].get("PARTICIPANTS", "A;B")
 
             posts_with_events.append(post_dict)
 
         close_connection(connection)
+
         return jsonify({"posts": posts_with_events}), 200
 
     except Exception as e:
-        logger.error(f"Error retrieving feed: {str(e)}")
+        logger.error(f"Error retrieving feed!")
         if 'connection' in locals():
             close_connection(connection)
-        return jsonify({"status": "An error occurred while retrieving the feed"}), 500
+        return jsonify({"status": "An error happend while retrieving the feed"}), 500
+
+
+    except Exception as e:
+        logger.error(f"Error retrieving feed.")
+        if 'connection' in locals():
+            close_connection(connection)
+        return jsonify({"status": "An error happend while retrieving the feed"}), 500
 
 # TODO: Still need to improve it. https://stackoverflow.com/questions/20646822/how-to-serve-static-files-in-flask
 # @app.route("cdn/", methods=["GET"])
@@ -168,6 +170,7 @@ def get_user():
     res = cursor.fetchone()
 
     return Response(res)
+
 
 @app.route(base_path + "/posts/create", methods=["POST"])
 def create_post():
@@ -209,8 +212,6 @@ def create_event():
         event_u_id = generate_uuid()
         cursor = connection.cursor()
 
-        print(f"Parameters for Posts: ('event', {heading}, {content}, {None}, {uuid}, {event_u_id})")
-
         query1 = "INSERT INTO Posts (CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID, EVENT_QID) VALUES (%s, %s, %s, %s, %s, %s)"
         query2 = "INSERT INTO Events (QEID, CITY, EVENT_DATE, CREATED_BY_UUID) VALUES (%s, %s, %s, %s)"
 
@@ -224,6 +225,7 @@ def create_event():
         close_connection(connection)
 
     return Response(status=201)
+
 @app.route(base_path + "/users/create", methods=["POST"])
 def create_user():
     data = request.json

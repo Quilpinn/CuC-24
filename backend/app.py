@@ -35,6 +35,20 @@ def find_user_id_by_hash(connection, hash):
     res = cursor.fetchone()
     return res[0] if res else None
 
+def find_user_by_username(connection, username):
+    cursor = connection.cursor()
+
+    query = "SELECT UUID FROM Users WHERE USERNAME = %s"
+
+    cursor.execute(query, (username))
+
+    res = cursor.fetchone()
+
+    if res:
+        return res
+    else:
+        return None
+
 def create_connection():
     try:
         connection = mysql.connector.connect(host='cuc-24-db-1', database='data', user='root', password='A4432468432456432432')
@@ -89,6 +103,10 @@ def get_and_return_feed():
 # @app.route("cdn/", methods=["GET"])
 # def serve_images():
 #     return send_from_directory('pictures', path)
+
+@app.route(base_path + "/users/get", methods=["GET"])
+def get_user():
+    return None
 
 @app.route(base_path + "/posts/create", methods=["POST"])
 def create_post():

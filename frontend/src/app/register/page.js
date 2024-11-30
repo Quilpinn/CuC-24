@@ -49,7 +49,7 @@ function RegisterBox({registerState, setRegisterState}) {
       
       const data = await response.json();
       if (data.status != "ok") {
-        setMessage(data.message);
+        setMessage(data.status);
       }
       else {
         setAuthentication(data.hash);

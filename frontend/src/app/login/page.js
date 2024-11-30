@@ -38,7 +38,7 @@ function LoginBox({loginState, setLoginState}) {
         console.log("__________")
         //console.log(apiUrl)
         console.log("__________")
-      const response = await fetch(`http://172.18.0.4:8484/api/v1/authenticate`, {//(`${apiUrl}/api/v1/authenticate`, {
+      const response = await fetch(`http://localhost:8484/api/v1/authenticate`, {//(`${apiUrl}/api/v1/authenticate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

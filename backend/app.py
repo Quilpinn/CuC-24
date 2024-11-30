@@ -161,8 +161,8 @@ def get_and_return_feed():
 # def serve_content(path):
 #     return send_from_directory('reports', path)
 
-@app.route(base_path + "/users/get_by_username", methods=["POST"])
-def get_user():
+@app.route(base_path + "/users/getByUsername", methods=["POST"])
+def get_user_by_username():
     data = request.json
 
     username = data["username"]
@@ -187,8 +187,8 @@ def get_user():
 
     return jsonify(user_data), 200
 
-@app.route(base_path + "/users/get_by_hash", methods=["POST"])
-def get_user():
+@app.route(base_path + "/users/getByHash", methods=["POST"])
+def get_user_by_hash():
     data = request.json
 
     hash = data["hash"]
@@ -215,8 +215,8 @@ def get_user():
 
     return jsonify(user_data), 200
 
-@app.route(base_path + "/users/get_by_id", methods=["POST"])
-def get_user():
+@app.route(base_path + "/users/getById", methods=["POST"])
+def get_user_by_id():
     data = request.json
 
     uuid = data["uuid"]

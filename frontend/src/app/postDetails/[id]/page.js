@@ -1,7 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import eventImage from "/src/assets/img.png";
-export default function EventDetails() {
+import { use } from 'react';
+
+export default function EventDetails({ params }) {
+  const { id } = use(params);
+  console.log(id);
   // Hardcoded event data
   const fakeEvent = {
     id: 1,

@@ -54,6 +54,7 @@ function Feed(props) {
         <div className='flex flex-col items-center w-full py-5' {...props}>
             {posts.map(post => {
                 if (post.CONTENT_TYPE == "event") {
+                    console.log(post.EVENT_QID)
                     let participants = null;
                     if (post.PARTICIPANTS != null) {
                         participants = post.PARTICIPANTS.split("; ");
@@ -67,7 +68,7 @@ function Feed(props) {
                         <div className="">{post.EVENT_DATE}</div>
                         <div className="">Geposted am {post.TIMESTAMP} von {post.USERNAME}</div>
                         {participants == null ? (
-                            <a onClick={() => addParticipant(post.QUEID)} href="#">
+                            <a onClick={() => addParticipant(post.EVENT_QID)} href="#">
                                 Melde dich als erster an!
                             </a>
                             ) : participants.includes(getUser()) ? (
@@ -77,12 +78,12 @@ function Feed(props) {
                             ) : (
                             <div className="">
                                 {participants.length} Teilnehmende.{" "}
-                                <a onClick={() => addParticipant(post.UUID)} href="#">
+                                <a onClick={() => addParticipant(post.EVENT_QID)} href="#">
                                 Auch teilnehmen?
                                 </a>
                             </div>
                         )}
-                        <a className="" href={`/postDetails/${post.QEID}`}>Repost</a>
+                        <a className="" href={`/postDetails/${post.EVENT_QID}`}>Repost</a>
                     </div>
                 );
                 }

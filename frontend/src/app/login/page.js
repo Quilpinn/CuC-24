@@ -1,94 +1,105 @@
-"use client"
+"use client";
 import "/src/app/globals.css";
-import React, { useState } from 'react';
-import { setAuthentication, getAuthentication } from "/src/app/cockies"
+import React, { useState } from "react";
+import { setAuthentication, getAuthentication } from "/src/app/cockies";
 
-
-function InputBox({children, label}) {
+function InputBox({ children, label }) {
   return (
-    <div>
-      <div>
-        <label>{label}</label>
-      </div>
+    <div className="w-full mb-4">
+      <label className="block text-gray-700 text-sm font-medium mb-2">
+        {label}
+      </label>
       {children}
     </div>
   );
 }
 
-function TextInput({label, ...props}) {
+function TextInput({ label, ...props }) {
   return (
     <InputBox label={label}>
       <input
         type="text"
-        className="input input-bordered w-full"
+        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
         {...props}
       />
     </InputBox>
   );
 }
 
-function LoginBox({loginState, setLoginState}) {
-  const [message, setMessage] = useState('');
+function LoginBox({ loginState, setLoginState }) {
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        console.log(loginState.user);
-        console.log(loginState.pass);
-        console.log("__________")
-        //console.log(apiUrl)
-        console.log("__________")
-      const response = await fetch(`http://localhost:8484/api/v1/authenticate`, {//(`${apiUrl}/api/v1/authenticate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch(`http://localhost:8484/api/v1/authenticate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: loginState.user,
-          password: loginState.pass
-        })
+          password: loginState.pass,
+        }),
       });
-      
+
       const data = await response.json();
-      console.log("data recieved")
-      console.log(data)
-      if (response.ok) { // do I need this?
-        if (data.status != "ok") {
-            setMessage(data.status);
-        }
-        else {
-            setAuthentication(data.hash);
-            console.log("authentication set");
-            console.log(getAuthentication())
+      if (response.ok) {
+        if (data.status !== "ok") {
+          setMessage(data.status);
+        } else {
+          setAuthentication(data.hash);
         }
       }
     } catch (error) {
-      setMessage('Login failed: ' + error.message + 'Try Reloading the page.');
+      setMessage("Login failed: " + error.message + " Try Reloading the page.");
     }
   };
 
   return (
-    <div className="flex flex-col gap-y-2 border-4 border-primaer rounded-md p-4 max-w-screen-sm w-full">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+      <h2 className="text-2xl font-bold text-center text-pink-500 mb-4">
+        Let's dance!
+      </h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-y-4">
         <TextInput
           id="userName"
           name="userName"
           type="text"
-          label="Benutzername"
+          label="Username"
           value={loginState.user}
-          onChange={e => setLoginState({...loginState, user: e.target.value})}
+          onChange={(e) =>
+            setLoginState({ ...loginState, user: e.target.value })
+          }
         />
         <TextInput
           id="password"
           name="password"
           type="password"
-          label="Passwort"
+          label="Password"
           value={loginState.pass}
-          onChange={e => setLoginState({...loginState, pass: e.target.value})}
+          onChange={(e) =>
+            setLoginState({ ...loginState, pass: e.target.value })
+          }
         />
-        <button type="submit" className="btn btn-primary mt-4 border-4 border-white bg-white rounded-lg p-1 max-w-fit">
-          Submit
+        <button
+          type="submit"
+          className="bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 px-4 rounded-lg hover:shadow-lg transition-all"
+        >
+          Log In
         </button>
-        <div>{message}</div>
+        {message && <p className="text-red-500 text-sm mt-2">{message}</p>}
       </form>
+      <p className="text-center text-gray-600 text-sm mt-4">
+        Passwort vergessen?{" "}
+        <a href="#" className="text-pink-500 hover:underline">
+        Zurücksetzen
+        </a>
+      </p>
+      <p className="text-center text-gray-600 text-sm mt-2">
+      Sie haben noch kein Konto?{" "}
+        <a href="#" className="text-pink-500 hover:underline">
+          Register
+        </a>
+      </p>
     </div>
   );
 }
@@ -96,12 +107,24 @@ function LoginBox({loginState, setLoginState}) {
 export default function Login() {
   const [loginState, setLoginState] = useState({
     user: "",
-    pass: ""
+    pass: "",
   });
 
   return (
-    <div className='p-5 flex flex-col items-center gap-4'>
-      <LoginBox loginState={loginState} setLoginState={setLoginState} />
+    <div className="h-screen flex">
+      {/* Left Section */}
+      <div className="w-1/2 bg-gradient-to-r from-pink-500 to-purple-600 flex flex-col justify-center items-center text-white px-8">
+        <h1 className="text-4xl font-bold mb-4">Welcome to Stepzz!</h1>
+        <p className="text-center text-lg">
+        Treten Sie ein in eine Welt voller Rhythmus, Leidenschaft und Gemeinschaft. Entdecken Sie Kurse,
+        Events und knüpfen Sie Kontakte zu anderen Tanzbegeisterten.
+        </p>
+      </div>
+
+      {/* Right Section */}
+      <div className="w-1/2 flex justify-center items-center">
+        <LoginBox loginState={loginState} setLoginState={setLoginState} />
+      </div>
     </div>
   );
 }

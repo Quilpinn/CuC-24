@@ -20,6 +20,21 @@ def generate_uuid():
 
     return '-'.join(''.join(random.choices(string.ascii_lowercase + string.digits, k=length)) for length in segments)
 
+def find_user_id_by_hash(connection, hash):
+    cursor = connection.curser()
+    
+    try:
+        username_hash, password_hash = hash.split(":")
+    except ValueError:
+        return None
+
+    query = "SELECT UUID FROM Users WHERE SHA2(USERNAME, 256) = %s AND SHA2(PASSWORD, 256) = %s"
+
+    cursor.execute(query, (username_hash, password_hash))
+
+    res = curser.fetchone()
+    return res[0] if res else None
+
 def create_connection():
     try:
         connection = mysql.connector.connect(host='cuc-24-db-1', database='data', user='root', password='A4432468432456432432')
@@ -81,13 +96,18 @@ def create_post():
 
     heading = data["heading"]
     content = data["content"]
+    hash_cookie = data["hash"]
+
 
     connection = create_connection()
+    
+    uuid = find_user_id_by_hash(connection, hash_cookie)
+
     cursor = connection.cursor()
 
-    query = "INSERT INTO Posts (HEADING, CONTENT, PICTURE_URL) VALUES (%s, %s, %s)"
+    query = "INSERT INTO Posts (HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID) VALUES (%s, %s, %s, %s)"
 
-    cursor.execute(query, (heading, content, str("null")))
+    cursor.execute(query, (heading, content, str("null"), uuid))
     connection.commit()
     close_connection(connection)
 
@@ -130,10 +150,10 @@ def authenticate_user():
 
     close_connection(connection)
 
-    user_cookie = password
+    user_cookie = generate_sha256(username) + ":" + generate_sha256(password)
     
     if user:
-        return jsonify({"status": "ok", "hash": "123"}), 200
+        return jsonify({"status": "ok", "hash": user_cookie}), 200
     else:
         return jsonify({"status": "Invalid credentials"}), 401
 

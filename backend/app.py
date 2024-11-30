@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, Response, request, send_from_directory
 from flask_cors import CORS, cross_origin
-import mysql.connector, logging, random, string
+import mysql.connector, logging, random, string, os
 from mysql.connector import errors
 import hashlib
 
@@ -29,7 +29,7 @@ def find_user_id_by_hash(connection, hash):
     except ValueError:
         return None
 
-    query = "SELECT UUID FROM Users WHERE SHA2(USERNAME, 256) = %s AND SHA2(PASSWORD, 256) = %s"
+    query = "SELECT UUID, USERNAME, CITY FROM Users WHERE SHA2(USERNAME, 256) = %s AND SHA2(PASSWORD, 256) = %s"
 
     cursor.execute(query, (username_hash, password_hash))
 
@@ -41,7 +41,7 @@ def find_user_by_username(connection, username):
 
     query = "SELECT UUID FROM Users WHERE USERNAME = %s"
 
-    cursor.execute(query, (username))
+    cursor.execute(query, (username,))
 
     res = cursor.fetchone()
 
@@ -72,10 +72,12 @@ def close_connection(connection):
 def create_tables():
     connection = create_connection()
     cursor = connection.cursor()
-    query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(4000) NOT NULL, VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP)"
-    query2 = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP, CREATED_BY_UUID VARCHAR(255) NOT NULL)"
+    query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(4000) NOT NULL, CITY VARCHAR(255), VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP)"
+    query2 = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, CONTENT_TYPE VARCHAR(255) NOT NULL, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP, CREATED_BY_UUID VARCHAR(255) NOT NULL, EVENT_QID VARCHAR(255))"
+    query3 = "CREATE TABLE IF NOT EXISTS Events (QEID VARCHAR(255), IEID INT AUTO_INCREMENT PRIMARY KEY, CITY VARCHAR(255), EVENT_ADDRESS VARCHAR(600), TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP, CREATED_BY_UUID VARCHAR(255), PARTICIPANTS VARCHAR(2000))"
     cursor.execute(query)
     cursor.execute(query2)
+    cursor.execute(query3)
     connection.commit()
     close_connection(connection)
 
@@ -98,7 +100,7 @@ def get_and_return_feed():
         if not res:
             logger.warning("No posts in feed found.")
             close_connection(connection)
-            return jsonify({"message": "No posts found"}), 404
+            return jsonify({"status": "No posts found"}), 404
 
         posts = [dict(zip(columns, row)) for row in res]
 
@@ -107,8 +109,7 @@ def get_and_return_feed():
 
     except Exception as e:
         logger.error(f"Error retrieving feed: {str(e)}")
-        return jsonify({"message": "An error occurred while retrieving the feed"}), 500
-
+        return jsonify({"status": "An error occurred while retrieving the feed"}), 500
 
 # TODO: Still need to improve it. https://stackoverflow.com/questions/20646822/how-to-serve-static-files-in-flask
 # @app.route("cdn/", methods=["GET"])
@@ -116,15 +117,23 @@ def get_and_return_feed():
 #     return send_from_directory('pictures', path)
 
 # TODO: Implement user and posting finding/searching for profile page
-@app.route(base_path + "/users/get", methods=["GET"])
+@app.route(base_path + "/users/get", methods=["POST"])
 def get_user():
+    data = request.json
+    
     connection = create_connection()
+    cursor = connection.cursor()
 
     user = find_user_by_username(connection, data["username"])
 
-    
+    query = "SELECT USERNAME FROM Users WHERE UUID = %s"
 
-    return None
+    query_posts = ""
+
+    cursor.execute(query, (user[0],))
+    res = cursor.fetchone()
+
+    return Response(res)
 
 @app.route(base_path + "/posts/create", methods=["POST"])
 def create_post():
@@ -140,13 +149,40 @@ def create_post():
 
     cursor = connection.cursor()
 
-    query = "INSERT INTO Posts (HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID) VALUES (%s, %s, %s, %s)"
+    query = "INSERT INTO Posts (CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID) VALUES (%s, %s, %s, %s, %s)"
 
-    cursor.execute(query, (heading, content, str("null"), uuid))
+    cursor.execute(query, ("post", heading, content, str("null"), uuid[0]))
     connection.commit()
     close_connection(connection)
 
-    return Response(status=500)
+    return Response(status=201)
+
+@app.route(base_path + "/events/create", methods=["POST"])
+def create_event():
+    data = request.json
+
+    heading = data["heading"]
+    content = data["content"]
+    event_address = data["event_address"]
+    hash_cookie = data["hash"]
+
+    connection = create_connection()
+    
+    uuid = find_user_id_by_hash(connection, hash_cookie)
+
+    cursor = connection.cursor()
+
+    event_u_id = generate_uuid()
+
+    query1 = "INSERT INTO Posts (CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID, EVENT_QID) VALUES (%s, %s, %s, %s, %s, %s)"
+    query2 = "INSERT INTO Events (QEID, CITY, EVENT_ADDRESS, CREATED_BY_UUID) VALUES (%s, %s, %s, %s)"
+
+    cursor.execute(query1, ("event", heading, content, str("null"), uuid, event_u_id))
+    cursor.execute(query2, (event_u_id, uuid[2], event_address, uuid))
+    connection.commit()
+    close_connection(connection)
+
+    return Response(status=201)
 
 @app.route(base_path + "/users/create", methods=["POST"])
 @cross_origin(supports_credentials=True)

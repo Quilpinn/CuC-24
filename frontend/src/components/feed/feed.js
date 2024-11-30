@@ -31,6 +31,7 @@ async function addParticipant(eventId) {
 
 function Feed(props) {
     const [posts, setPosts] = useState([]);
+    // let posts = null;
     if (true) {
 
     useEffect(() => {

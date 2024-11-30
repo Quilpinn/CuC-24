@@ -1,7 +1,7 @@
 "use client";
 import "/src/app/globals.css";
 import React, { useState } from "react";
-import { getAuthentication } from "/src/app/cockies"
+import { getAuthentication } from "/src/services/cookies"
 
 export default function NewPost() {
   const [eventData, setEventData] = useState({
@@ -10,8 +10,10 @@ export default function NewPost() {
     description: "",
     date: "",
     time: "",
+    city: "",
     tags: "",
   });
+  const [message, setMessage] = useState("");
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -28,7 +30,8 @@ export default function NewPost() {
     console.log("Saving Event:", eventData);
     e.preventDefault();
     try {
-      const response = await fetch(`${apiUrl}/api/v1/posts/create`, {
+      console.log("Try Block ausgeführt.")
+      const response = await fetch(`${apiUrl}/api/v1/events/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -41,7 +44,7 @@ export default function NewPost() {
           interests: eventData.tags
         }),
       });
-
+      console.log("fetch ausgeführt.")
       const data = await response.json();
       if (data.status !== "ok") {
         setMessage(data.status);

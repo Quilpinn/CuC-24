@@ -2,6 +2,8 @@
 import { getAuthentication, removeAuthentication, isAuthenticated } from "/src/app/cockies"
 import React, { useState, useEffect } from 'react';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 const Dropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState('Choose an option');
@@ -20,7 +22,7 @@ const Dropdown = () => {
     setIsOpen(false);
 
     try {
-      const response = await fetch(`localhost:8484/api/v1/user/get`, {
+      const response = await fetch(`${api}/api/v1/user/get`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -3,6 +3,7 @@ import "/src/app/globals.css";
 import React, { useState } from 'react';
 import { setAuthentication, getAuthentication } from "/src/app/cockies"
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 function InputBox({children, label}) {
   return (
@@ -38,7 +39,7 @@ function LoginBox({loginState, setLoginState}) {
         console.log("__________")
         //console.log(apiUrl)
         console.log("__________")
-      const response = await fetch(`http://localhost:8484/api/v1/authenticate`, {//(`${apiUrl}/api/v1/authenticate`, {
+      const response = await fetch(`${apiUrl}/api/v1/authenticate`, {//(`${apiUrl}/api/v1/authenticate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

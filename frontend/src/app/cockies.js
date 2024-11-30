@@ -14,6 +14,17 @@ import Cookies from 'js-cookie'
     const value = Cookies.get('auth')
     return value
   }
+
+  export function isAuthenticated() {
+    try {
+        const value = Cookies.get('auth');
+        return value != null;
+    }
+    catch {
+        return false;
+    }
+    
+  }
   
   // Removing a cookie
   export function removeAuthentication() {

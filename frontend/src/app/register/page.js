@@ -3,6 +3,9 @@ import "/src/app/globals.css";
 import React, { useState } from 'react';
 import { setAuthentication } from "/src/app/cockies"
 
+//const apiUrl = process.env.API_URL;
+const apiUrl = "https://probable-halibut-qg5pq4pg566c9vr6-8484.app.github.dev:8484"
+console.log(apiUrl)
 
 function InputBox({children, label}) {
   return (
@@ -35,7 +38,7 @@ function RegisterBox({registerState, setRegisterState}) {
     try {
         console.log(registerState.user);
         console.log(registerState.pass);
-      const response = await fetch(`http://localhost:8484/api/v1/users/create`, {
+      const response = await fetch(`${apiUrl}/api/v1/users/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

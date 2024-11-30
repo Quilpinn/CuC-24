@@ -25,7 +25,8 @@ services:
     image: cuc-24/backend
     restart: always
     build:
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     depends_on:
       db:
         condition: service_healthy
@@ -38,11 +39,16 @@ services:
     image: cuc-24/frontend
     restart: always
     build:
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - '3000:3000'
     expose:
       - '3000'
+    command: npm run dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
 volumes:
   db_data:

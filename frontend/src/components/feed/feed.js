@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 async function addParticipant(eventid) {
+    console.log("add participant called")
     fetch(`${apiUrl}/api/v1/participant/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,7 +53,10 @@ function Feed(props) {
     return (
         <div className='flex flex-col items-center w-full py-5' {...props}>
             {posts.map(post => {
-                const participants = post.PARTICIPANTS.split("; ");
+                let participants = null;
+                if (post.PARTICIPANTS != null) {
+                  participants = post.PARTICIPANTS.split("; ");
+                }
                 return (
                     <div className="flex flex-col items-center" key={post.HEADING} >
                         <div className="font-bold text-center text-xl">{post.HEADING}</div>
@@ -61,20 +65,22 @@ function Feed(props) {
                         <div className="">{post.EVENT_ADDRESS}</div>
                         <div className="">{post.DATETIME}</div>
                         <div className="">Geposted am {post.DATE_POSTED} von {post.USER}</div>
-                        {
-                            participants.includes(getUser()) ? (
-                                <div className="">
-                                    {participants.length - 1} Teilnehmende außer dir
-                                </div>
+                        {participants == null ? (
+                            <a onClick={() => addParticipant(post.UUID)} href="#">
+                                Melde dich als erster an!
+                            </a>
+                            ) : participants.includes(getUser()) ? (
+                            <div className="">
+                                {participants.length - 1} Teilnehmende außer dir
+                            </div>
                             ) : (
-                                <div className="">
-                                    {participants.length} Teilnehmende.{" "}
-                                    <a onClick={() => addParticipant(post.UUID)} href="#">
-                                        Auch teilnehmen?
-                                    </a>
-                                </div>
-                            )
-                        }
+                            <div className="">
+                                {participants.length} Teilnehmende.{" "}
+                                <a onClick={() => addParticipant(post.UUID)} href="#">
+                                Auch teilnehmen?
+                                </a>
+                            </div>
+                        )}
                         <div className="" onClick={console.log("reposing not implemented yet")}>Repost</div>
                     </div>
                 );

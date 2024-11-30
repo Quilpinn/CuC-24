@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, Response, request, send_from_directory
 from flask_cors import CORS, cross_origin
 import mysql.connector, logging, random, string
-from mysql.connector import Error
+from mysql.connector import errors
 import hashlib
 
 logger = logging.getLogger("backend-app-logger")
@@ -84,20 +84,30 @@ def base_path_route():
 
 @app.route(base_path + "feed", methods=["GET"])
 def get_and_return_feed():
-    connection = create_connection()
-    cursor = connection.cursor()
-    query = "SELECT * FROM Posts ORDER BY TIMESTAMP DESC"
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        
+        query = "SELECT * FROM Posts ORDER BY TIMESTAMP DESC"
+        cursor.execute(query)
 
-    cursor.execute(query)
-    res = cursor.fetchall()
-    close_connection(connection)
-    return jsonify(res)
+        columns = [col[0] for col in cursor.description]
+        res = cursor.fetchall()
 
-    if res == []:
-        logger.warning("No posts in feed found.")
-        return Response(status=404)
+        if not res:
+            logger.warning("No posts in feed found.")
+            close_connection(connection)
+            return jsonify({"message": "No posts found"}), 404
 
-    return Response(status=200)
+        posts = [dict(zip(columns, row)) for row in res]
+
+        close_connection(connection)
+        return jsonify({"posts": posts}), 200
+
+    except Exception as e:
+        logger.error(f"Error retrieving feed: {str(e)}")
+        return jsonify({"message": "An error occurred while retrieving the feed"}), 500
+
 
 # TODO: Still need to improve it. https://stackoverflow.com/questions/20646822/how-to-serve-static-files-in-flask
 # @app.route("cdn/", methods=["GET"])
@@ -106,6 +116,11 @@ def get_and_return_feed():
 
 @app.route(base_path + "/users/get", methods=["GET"])
 def get_user():
+    connection = create_connection()
+
+    user = find_user_by_username(connection, data["username"])
+
+
     return None
 
 @app.route(base_path + "/posts/create", methods=["POST"])
@@ -115,7 +130,6 @@ def create_post():
     heading = data["heading"]
     content = data["content"]
     hash_cookie = data["hash"]
-
 
     connection = create_connection()
     
@@ -145,11 +159,19 @@ def create_user():
     line = (generate_uuid(), data["username"], email, password, 0)
 
     query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, VERIFIED) VALUES (%s, %s, %s, %s, %s)"
-    cursor.execute(query, line)
-    connection.commit()
-    close_connection(connection)
 
-    return jsonify({"message": "ok"}), 201
+    try:
+        cursor.execute(query, line)
+        connection.commit()
+        close_connection(connection)
+        return jsonify({"status": "ok"}), 201
+    except errors.IntegrityError as e:
+        if e.errno == 1062:
+            return jsonify({"status": "Der Benutzername oder die E-Mail Adresse exsistiert bereits in der Datenbank. Bitte wähle andere."}), 400
+        else:
+            return jsonify({"status": "Ein Fehler ist in der Datenverarbeitung aufgetreten."}), 500
+
+    return jsonify({"status": "Ein unerwarteter Fehler ist aufgetreten!"}), 500
 
 @app.route(base_path + "/authenticate", methods=["POST"])
 def authenticate_user():
@@ -173,7 +195,7 @@ def authenticate_user():
     if user:
         return jsonify({"status": "ok", "hash": user_cookie}), 200
     else:
-        return jsonify({"status": "Invalid credentials"}), 401
+        return jsonify({"status": "Der Benutzername oder das Passwort ist falsch."}), 401
 
 if __name__ == '__main__':
     create_tables()

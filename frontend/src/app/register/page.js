@@ -34,6 +34,8 @@ function RegisterBox({ registerState, setRegisterState }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const interestsArray = registerState.interests.split(',')
+
       const response = await fetch(`${apiUrl}/api/v1/users/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -41,6 +43,8 @@ function RegisterBox({ registerState, setRegisterState }) {
           username: registerState.user,
           email: registerState.mail,
           password: registerState.pass,
+          interests: interestsArray,
+          city: registerState.city
         }),
       });
 
@@ -90,6 +94,22 @@ function RegisterBox({ registerState, setRegisterState }) {
           onChange={(e) =>
             setRegisterState({ ...registerState, pass: e.target.value })
           }
+        />
+        <TextInput
+          id="interests"
+          name="interests"
+          type="text"
+          label="Interessen"
+          value={registerState.interests}
+          onChange={(e) => setRegisterState({...registerState, interests: e.target.value})}
+        />
+        <TextInput
+          id="city"
+          name="city"
+          type="text"
+          label="Stadt"
+          value={registerState.city}
+          onChange={(e) => setRegisterState({...registerState, city: e.target.value})}
         />
         <button
           type="submit"

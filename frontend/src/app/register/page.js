@@ -8,8 +8,8 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 function InputBox({ children, label }) {
   return (
-    <div className="w-full mb-4">
-      <label className="block text-gray-700 text-sm font-medium mb-2">
+    <div className="w-full mb-3">
+      <label className="block text-gray-700 text-sm font-medium mb-1">
         {label}
       </label>
       {children}
@@ -20,10 +20,10 @@ function InputBox({ children, label }) {
 function TextInput({ label, hint, ...props }) {
   return (
     <InputBox label={label}>
-      {hint ?? <div>{hint}</div>}
+      {hint && <div className="text-gray-500 text-xs mb-1">{hint}</div>}
       <input
         type="text"
-        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
+        className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
         {...props}
       />
     </InputBox>
@@ -36,7 +36,7 @@ function RegisterBox({ registerState, setRegisterState }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const interestsArray = registerState.interests.split(',')
+      const interestsArray = registerState.interests.split(",");
 
       const response = await fetch(`${apiUrl}/api/v1/users/create`, {
         method: "POST",
@@ -46,7 +46,7 @@ function RegisterBox({ registerState, setRegisterState }) {
           email: registerState.mail,
           password: registerState.pass,
           interests: interestsArray,
-          city: registerState.city
+          city: registerState.city,
         }),
       });
 
@@ -62,16 +62,16 @@ function RegisterBox({ registerState, setRegisterState }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-      <h2 className="text-2xl font-bold text-center text-pink-500 mb-4">
-      Erstellen Sie Ihr Stepzz-Konto
-        </h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-y-4">
+    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-lg">
+      <h2 className="text-xl font-bold text-center text-pink-500 mb-4">
+        Erstellen Sie Ihr Stepzz-Konto
+      </h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-y-3">
         <TextInput
           id="userName"
           name="userName"
           type="text"
-          label="Username"
+          label="Benutzername"
           value={registerState.user}
           onChange={(e) =>
             setRegisterState({ ...registerState, user: e.target.value })
@@ -81,7 +81,7 @@ function RegisterBox({ registerState, setRegisterState }) {
           id="mail"
           name="mail"
           type="email"
-          label="E-Mail Address"
+          label="E-Mail Addresse"
           value={registerState.mail}
           onChange={(e) =>
             setRegisterState({ ...registerState, mail: e.target.value })
@@ -91,7 +91,7 @@ function RegisterBox({ registerState, setRegisterState }) {
           id="password"
           name="password"
           type="password"
-          label="Password"
+          label="Passwort"
           value={registerState.pass}
           onChange={(e) =>
             setRegisterState({ ...registerState, pass: e.target.value })
@@ -100,11 +100,13 @@ function RegisterBox({ registerState, setRegisterState }) {
         <TextInput
           id="interests"
           name="interests"
-          hint="Bitte gib eine ',' separierte Liste deiner Interessen an."
+          placeholder="Bitte gib eine ',' separierte Liste deiner Interessen an."
           type="text"
           label="Interessen"
           value={registerState.interests}
-          onChange={(e) => setRegisterState({...registerState, interests: e.target.value})}
+          onChange={(e) =>
+            setRegisterState({ ...registerState, interests: e.target.value })
+          }
         />
         <TextInput
           id="city"
@@ -112,7 +114,9 @@ function RegisterBox({ registerState, setRegisterState }) {
           type="text"
           label="Stadt"
           value={registerState.city}
-          onChange={(e) => setRegisterState({...registerState, city: e.target.value})}
+          onChange={(e) =>
+            setRegisterState({ ...registerState, city: e.target.value })
+          }
         />
         <button
           type="submit"
@@ -123,7 +127,7 @@ function RegisterBox({ registerState, setRegisterState }) {
         {message && <p className="text-red-500 text-sm mt-2">{message}</p>}
       </form>
       <p className="text-center text-gray-600 text-sm mt-4">
-      Hast du schon ein Konto?{" "}
+        Hast du schon ein Konto?{" "}
         <Link href="/login" className="text-pink-500 hover:underline">
           Einloggen
         </Link>
@@ -137,6 +141,8 @@ export default function Register() {
     user: "",
     mail: "",
     pass: "",
+    interests: "",
+    city: "",
   });
 
   return (
@@ -145,7 +151,9 @@ export default function Register() {
       <div className="w-1/2 bg-gradient-to-r from-pink-500 to-purple-600 flex flex-col justify-center items-center text-white px-8">
         <h1 className="text-4xl font-bold mb-4">Willkommen bei Stepzz!</h1>
         <p className="text-center text-lg">
-        Treten Sie unserer lebendigen Tanzgemeinschaft bei, knüpfen Sie Kontakte zu Enthusiasten und nehmen Sie an Veranstaltungen und Kursen teil, um sich durch Rhythmus und Bewegung auszudrücken.
+          Treten Sie unserer lebendigen Tanzgemeinschaft bei, knüpfen Sie
+          Kontakte zu Enthusiasten und nehmen Sie an Veranstaltungen und Kursen
+          teil, um sich durch Rhythmus und Bewegung auszudrücken.
         </p>
       </div>
 

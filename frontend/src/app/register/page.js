@@ -3,6 +3,7 @@ import "/src/app/globals.css";
 import React, { useState } from "react";
 import { setAuthentication } from "/src/services/cookies";
 import Link from "next/link";
+import { useRouter } from "next/navigation"
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -32,6 +33,7 @@ function TextInput({ label, hint, ...props }) {
 
 function RegisterBox({ registerState, setRegisterState }) {
   const [message, setMessage] = useState("");
+  const router = useRouter()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,7 +60,7 @@ function RegisterBox({ registerState, setRegisterState }) {
       } else {
         console.log("logged in");
         setAuthentication(data.hash);
-        window.location = "/"
+        router.push('/')
       }
     } catch (error) {
       setMessage("Registering failed: " + error.message);

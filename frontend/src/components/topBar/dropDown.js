@@ -20,7 +20,7 @@ async function getUser() {
     return username;
 }
 
-export default function Dropdown(setIsAuthenticated) {
+export default function Dropdown({setIsAuthenticated}) {
     const [isOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState('Choose an option');
     const router = useRouter()
@@ -36,12 +36,12 @@ export default function Dropdown(setIsAuthenticated) {
         setSelected(option);
         setIsOpen(false);
 
-        username = getUser();
-
         if (option == "Me") {
             window.location.href = `/profile/${encodeURIComponent(username)}`;
         }
         else if (option == "Logout") {
+            console.log('hi');
+            
             removeAuthentication();
             setIsAuthenticated(false)
             router.push("/")

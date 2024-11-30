@@ -2,10 +2,13 @@
 import "/src/app/globals.css";
 import React, { useState } from "react";
 import { getAuthentication } from "/src/services/cookies"
+import { useRouter } from "next/navigation"
 
 export default function NewPost() {
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  const router = useRouter()
 
   const [eventData, setEventData] = useState({
     image: null,
@@ -50,7 +53,7 @@ export default function NewPost() {
       console.log(response)
       
       if (response.status == 201) {
-        window.location = "/"
+        router.push("/");
       } else {
         setMessage(data.status);
       }

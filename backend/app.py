@@ -19,7 +19,7 @@ def generate_sha256(password):
 def generate_uuid():
     segments = [8, 8, 8, 8]
 
-    return '-'.join(''.join(random.choices(string.ascii_lowercase + string.digits, k=length)) for length in segments)
+    return ''.join(''.join(random.choices(string.ascii_lowercase + string.digits, k=length)) for length in segments)
 
 def find_user_id_by_hash(connection, hash):
     cursor = connection.cursor()
@@ -85,6 +85,7 @@ def create_tables():
 def base_path_route():
     return Response(status=200)
 
+# TODO : "EVENT_HEADING" = Heading of mentioned event
 @app.route(base_path + "feed", methods=["POST"])
 def get_and_return_feed():
     try:
@@ -94,6 +95,10 @@ def get_and_return_feed():
         posts_query = "SELECT PID, CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, TIMESTAMP, CREATED_BY_UUID, EVENT_QID FROM Posts ORDER BY TIMESTAMP DESC"
         cursor.execute(posts_query)
         posts = cursor.fetchall()
+
+        query_to_find_username = "SELECT USERNAME FROM Users WHERE UUID = d7mpxmih-pujgks9m-7kb2fmz3-a8mjovml"
+        cursor.execute(query_to_find_username, (str(event[3])))
+        username = cursor.fetchone()
 
         post_columns = [col[0] for col in cursor.description]
 
@@ -113,6 +118,7 @@ def get_and_return_feed():
 
             events_map = {
                 event[0]: {
+                    "USERNAME":username,
                     "QEID": event[0],
                     "CITY": event[1],
                     "EVENT_DATE": event[2],
@@ -149,24 +155,26 @@ def get_and_return_feed():
             close_connection(connection)
         return jsonify({"status": "An error happend while retrieving the feed"}), 500
 
-# TODO: Still need to improve it. https://stackoverflow.com/questions/20646822/how-to-serve-static-files-in-flask
-# @app.route("cdn/", methods=["GET"])
-# def serve_images():
-#     return send_from_directory('pictures', path)
+# TODO: Docker compose file mapping for correct directory
+# @app.route('/cdn/<path:path>')
+# def serve_content(path):
+#     return send_from_directory('reports', path)
 
 # TODO: Implement user and posting finding/searching for profile page
 @app.route(base_path + "/users/get", methods=["POST"])
 def get_user():
     data = request.json
+
+    uuid = data["uuid"]
     
     connection = create_connection()
     cursor = connection.cursor()
 
-    query = "SELECT INTERESTS, CITY FROM Users WHERE USERNAME = %s"
+    query = "SELECT USERNAME, INTERESTS, CITY FROM Users WHERE UUID = %s"
 
-    query_posts = ""
+    cursor.execute(query, (uuid[0]))
 
-    cursor.execute(query, (data["username"],))
+    cursor.execute(query, ())
     res = cursor.fetchone()
 
     return Response(res)
@@ -179,6 +187,7 @@ def create_post():
     heading = data["heading"]
     content = data["content"]
     hash_cookie = data["hash"]
+    event_id = data["eventId"]
 
     connection = create_connection()
     
@@ -186,9 +195,9 @@ def create_post():
 
     cursor = connection.cursor()
 
-    query = "INSERT INTO Posts (CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID) VALUES (%s, %s, %s, %s, %s)"
+    query = "INSERT INTO Posts (CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID, EVENT_QID) VALUES (%s, %s, %s, %s, %s, %s)"
 
-    cursor.execute(query, ("post", heading, content, str("null"), uuid[0]))
+    cursor.execute(query, ("post", heading, content, str("null"), uuid[0], event_id))
     connection.commit()
     close_connection(connection)
 
@@ -225,6 +234,43 @@ def create_event():
         close_connection(connection)
 
     return Response(status=201)
+
+@app.route(base_path + "/events/get", methods=["POST"])
+def get_events_by_id():
+    data = request.json
+
+    event_id = data.get("eventId")
+
+    if not event_id:
+        return jsonify({"error": "eventId is required"}), 400
+
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    query_events = "SELECT CITY, EVENT_DATE, PARTICIPANTS FROM Events WHERE QEID = %s"
+    cursor.execute(query_events, (event_id,))
+    res_events = cursor.fetchone()
+
+    if not res_events:
+        return jsonify({"error": "Event not found"}), 404
+
+    query_posts = "SELECT HEADING, CONTENT, PICTURE_URL FROM Posts WHERE EVENT_QID = %s"
+    cursor.execute(query_posts, (event_id,))
+    res_posts = cursor.fetchone()
+
+    if not res_posts:
+        res_posts = [None, None, None]
+
+    map = {
+        "HEADING": res_posts[0],
+        "CONTENT": res_posts[1],
+        "PICTURE_URL": res_posts[2],
+        "CITY": res_events[0],
+        "TIMESTAMP": res_events[1],
+        "PARTICIPANTS": res_events[2]
+    }
+
+    return jsonify(map), 200
 
 @app.route(base_path + "/users/create", methods=["POST"])
 def create_user():
@@ -282,4 +328,4 @@ def authenticate_user():
 
 if __name__ == '__main__':
     create_tables()
-    app.run(host="0.0.0.0", port=8484, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=8484, threaded=True)

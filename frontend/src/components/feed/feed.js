@@ -112,7 +112,6 @@ function Feed(props) {
         <div className="flex flex-col items-center w-full py-5 bg-gray-100 min-h-screen" {...props}>
             <h1 className="text-3xl font-bold text-center mb-5">Dein Feed</h1>
             {posts.map((post) => {
-                console.log(post);
                 if (post.CONTENT_TYPE === "event") {
                     const participants = post.PARTICIPANTS
                         ? post.PARTICIPANTS.split("; ")

@@ -165,24 +165,27 @@ def get_and_return_feed():
 def get_user():
     data = request.json
 
-    uuid = data["uuid"]
-    
+    username = data["username"]
+
     connection = create_connection()
     cursor = connection.cursor()
 
-    query = "SELECT USERNAME, INTERESTS, CITY FROM Users WHERE UUID = %s"
+    query = "SELECT USERNAME, INTERESTS, CITY FROM Users WHERE USERNAME = %s"
 
-    cursor.execute(query, (uuid[0]))
+    cursor.execute(query, (username,))
 
     res = cursor.fetchone()
 
-    map = {
-        "USERNAME": res[0],
-        "INTERESTS": res[1],
-        "CITY": res[2]
+    if res is None:
+        return jsonify({"error": "User not found"}), 404
+
+    user_data = {
+        "username": res[0],
+        "interests": res[1],
+        "city": res[2]
     }
 
-    return jsonify(map), 200
+    return jsonify(user_data), 200
 
 
 @app.route(base_path + "/posts/create", methods=["POST"])

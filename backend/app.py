@@ -170,7 +170,7 @@ def get_user_by_username():
     connection = create_connection()
     cursor = connection.cursor()
 
-    query = "SELECT USERNAME, INTERESTS, CITY FROM Users WHERE USERNAME = %s"
+    query = "SELECT USERNAME, INTERESTS, CITY, UUID FROM Users WHERE USERNAME = %s"
 
     cursor.execute(query, (username,))
 
@@ -182,7 +182,8 @@ def get_user_by_username():
     user_data = {
         "username": res[0],
         "interests": res[1],
-        "city": res[2]
+        "city": res[2],
+        "uuid": res[3]
     }
 
     return jsonify(user_data), 200
@@ -198,7 +199,7 @@ def get_user_by_hash():
 
     cursor = connection.cursor()
 
-    query = "SELECT USERNAME, INTERESTS, CITY FROM Users WHERE UUID = %s"
+    query = "SELECT USERNAME, INTERESTS, CITY, UUID FROM Users WHERE UUID = %s"
 
     cursor.execute(query, (uuid,))
 
@@ -210,7 +211,8 @@ def get_user_by_hash():
     user_data = {
         "username": res[0],
         "interests": res[1],
-        "city": res[2]
+        "city": res[2],
+        "uuid": res[3]
     }
 
     return jsonify(user_data), 200
@@ -224,7 +226,7 @@ def get_user_by_id():
     connection = create_connection()
     cursor = connection.cursor()
 
-    query = "SELECT USERNAME, INTERESTS, CITY FROM Users WHERE UUID = %s"
+    query = "SELECT USERNAME, INTERESTS, CITY, UUID FROM Users WHERE UUID = %s"
 
     cursor.execute(query, (uuid,))
 
@@ -236,7 +238,8 @@ def get_user_by_id():
     user_data = {
         "username": res[0],
         "interests": res[1],
-        "city": res[2]
+        "city": res[2],
+        "uuid": res[3]
     }
 
     return jsonify(user_data), 200

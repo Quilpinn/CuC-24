@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from "react";
 import eventImage from "/src/assets/img.png";
 import { use } from 'react';
-import { getAuthentication } from "@/services/cookies";
-import { useRouter } from 'next/navigation'
+import { getAuthentication, checkAuth } from "@/services/cookies";
+import { useRouter } from 'next/navigation';
+import Link from 'next/link'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -155,7 +156,10 @@ export default function EventDetails({ params }) {
         /> */}
         {eventData && <EventDetails/>}
         {/* Event Details */}
-        <CommentSection/>
+        {checkAuth() && <CommentSection/>}
+        {!checkAuth() && <div className="p-6 text-gray-500">
+          Melde dich an, um einen Kommentar zu diesem Event zu hinterlassen! <Link href='/login' className='text-pink-500'>Anmelden</Link>
+          </div>}
       </div>
     </div>
   );

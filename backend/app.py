@@ -87,6 +87,8 @@ def base_path_route():
 
 @app.route(base_path + "feed", methods=["POST"])
 def get_and_return_feed():
+    data = request.json
+
     try:
         connection = create_connection()
         cursor = connection.cursor()
@@ -286,7 +288,12 @@ def add_participant_to_event():
     connection = create_connection()
     cursor = connection.cursor()
 
-    query = "SELECT * FROM "
+    query = "SELECT PARTICIPANTS FROM Events WHERE QEID = %s"
+    cursor.execute(query, (data["eventId"],))
+    res = cursor.fetchone
+
+    uuid = find_user_id_by_hash(connection, hash_cookie)
+    hash_cookie = data["hash"]
 
     return Response(status=204)
 

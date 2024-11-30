@@ -6,6 +6,23 @@ import Image from 'next/image';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 
+async function getUser() {
+  try {
+    const response = await fetch(`localhost:8484/api/v1/user/get`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        hash: getAuthentication(),
+      })
+    });
+    const username = await response.json();
+  } catch (error) {
+    console.error('Error fetching user:', error);
+  }
+  return username;
+}
+
+
 const Dropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState('Choose an option');
@@ -23,18 +40,7 @@ const Dropdown = () => {
     setSelected(option);
     setIsOpen(false);
 
-    try {
-      const response = await fetch(`localhost:8484/api/v1/user/get`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          hash: getAuthentication(),
-        })
-      });
-      const username = await response.json();
-    } catch (error) {
-      console.error('Error fetching user:', error);
-    }
+    username = getUser();
 
     if (option == "Me") {
         window.location.href = `/profile/${encodeURIComponent(username)}`;
@@ -97,8 +103,18 @@ export function TopBar() {
 
 
 
-export function NewPost() {
-  
+async function addParticipant(eventid) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  fetch(`${apiUrl}/api/v1/participant/add`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      hash: getAuthentication(),
+      eventid: eventid
+    })
+  }).catch(error => {
+    console.error('Failed to add participant:', error);
+  });
 }
 
 
@@ -142,7 +158,17 @@ function Feed(props) {
         <div className="flex flex-col items-center" key={post.HEADING} >
           <div className="font-bold text-center text-xl">{post.HEADING}</div>
           <div className="italic text-center text-lg">{post.CONTENT}</div>
-          {/*<Image src={post.image} alt="post" className="object-cover rounded-full mt-5 mb-3" width={300} height={300} />*/}
+          {/*<Image src={post.IMAGE} alt="post" className="object-cover rounded-full mt-5 mb-3" width={300} height={300} />*/}
+          <div className="">{post.EVENT_ADDRESS}</div>
+          <div className="">{post.DATETIME}</div>
+          <div className="">Geposted am {post.DATE_POSTED} von {post.USER}</div>
+          {
+          post.PARTICIPANTS.includes() ? 
+          <div className="">{post.PARTICIPANTS.length()-1} Teilnehmene außer dir</div>
+           : 
+          <div className="">{post.PARTICIPANTS.length()} Teilnehmene. <a onClick={addParticipant(post.UUID)}>Auch teilnehmen?</a></div>
+          }
+          <div className="" onClick={console.log("reposing not implemented yet")}>Repost</div>
         </div>
       ))}
     </div>

@@ -64,7 +64,7 @@ function Feed(props) {
                         {/*<Image src={post.IMAGE} alt="post" className="object-cover rounded-full mt-5 mb-3" width={300} height={300} />*/}
                         <div className="">{post.EVENT_ADDRESS}</div>
                         <div className="">{post.DATETIME}</div>
-                        <div className="">Geposted am {post.DATE_POSTED} von {post.USER}</div>
+                        <div className="">Geposted am {post.TIMESTAMP} von {post.USERNAME}</div>
                         {participants == null ? (
                             <a onClick={() => addParticipant(post.UUID)} href="#">
                                 Melde dich als erster an!

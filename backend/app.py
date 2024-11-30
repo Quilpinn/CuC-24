@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response, request
+from flask import Flask, jsonify, Response, request, send_from_directory
 from flask_cors import CORS, cross_origin
 import mysql.connector, logging, random, string
 from mysql.connector import Error
@@ -11,9 +11,9 @@ CORS(app, support_credentials=True)
 
 base_path = "/api/v1/"
 
-def generate_sha512(password):
-    hashed_password = hashlib.sha512(password.encode('utf-8')).hexdigest()
-    print(hashed_password)
+def generate_sha256(password):
+    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    return hashed_password
 
 def generate_uuid():
     segments = [8, 8, 8, 8]
@@ -43,7 +43,7 @@ def create_tables():
     connection = create_connection()
     cursor = connection.cursor()
     query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(4000) NOT NULL, VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP)"
-    query2 = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME NOT NULL)"
+    query2 = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP, CREATED_BY_UUID VARCHAR(255) NOT NULL)"
     cursor.execute(query)
     cursor.execute(query2)
     connection.commit()
@@ -62,31 +62,32 @@ def get_and_return_feed():
     cursor.execute(query)
     res = cursor.fetchall()
     close_connection(connection)
+    return jsonify(res)
 
     if res == []:
         logger.warning("No posts in feed found.")
-        return Response(status=200)
+        return Response(status=404)
 
     return Response(status=200)
 
+# TODO: Still need to improve it. https://stackoverflow.com/questions/20646822/how-to-serve-static-files-in-flask
+# @app.route("cdn/<path:path>", methods=["GET"])
+# def serve_images():
+#     return send_from_directory('pictures', path)
+
 @app.route(base_path + "/posts/create", methods=["POST"])
 def create_post():
-    data = Response.json
+    data = request.json
 
     heading = data["heading"]
     content = data["content"]
-
-    if data["picture"]:
-        contains_picture = True
-    else:
-        contains_picture = False
 
     connection = create_connection()
     cursor = connection.cursor()
 
     query = "INSERT INTO Posts (HEADING, CONTENT, PICTURE_URL) VALUES (%s, %s, %s)"
 
-    cursor.execute(query, (heading, content, contains_picture))
+    cursor.execute(query, (heading, content, str("null")))
     connection.commit()
     close_connection(connection)
 
@@ -101,19 +102,14 @@ def create_user():
     cursor = connection.cursor()
 
     email = data["email"]
+    password = generate_sha256(data["password"])
     
-    line = (generate_uuid(), data["username"], email, str(generate_sha512((data["password"]))), 0)
-    print(line)
+    line = (generate_uuid(), data["username"], email, password, 0)
 
-    try:
-        query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, VERIFIED) VALUES (%s, %s, %s, %s, %s)"
-        cursor.execute(query, line)
-        connection.commit()
-        close_connection(connection)
-
-    except Exception:
-        close_connection(connection)
-        return jsonify({"message": "Error"}), 500
+    query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, VERIFIED) VALUES (%s, %s, %s, %s, %s)"
+    cursor.execute(query, line)
+    connection.commit()
+    close_connection(connection)
 
     return jsonify({"message": "ok"}), 201
 
@@ -124,14 +120,17 @@ def authenticate_user():
     connection = create_connection()
     cursor = connection.cursor()
 
-    password = str(generate_sha512((data["password"])))
+    password = generate_sha256(data["password"])
     username = data["username"]
 
     query = "SELECT * FROM Users WHERE username = %s AND password = %s"
     cursor.execute(query, (username, password))
     user = cursor.fetchone()
+    print(user)
 
     close_connection(connection)
+
+    user_cookie = password
     
     if user:
         return jsonify({"status": "ok", "hash": "123"}), 200

@@ -15,9 +15,11 @@ export default function UserProfile({ params }) {
   });
 
   useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${api_Url}/v1/users/get`, {
+        const response = await fetch(`${apiUrl}/v1/users/get`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

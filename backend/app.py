@@ -153,7 +153,7 @@ def get_and_return_feed():
         logger.error(f"Error retrieving feed: {e}")
         if 'connection' in locals():
             close_connection(connection)
-        return jsonify({"status": "An error occurred while retrieving the feed", "exception": str(e)}), 500
+        return jsonify({"status": "An error occurred while retrieving the feed"}), 500
 
 # TODO: Docker compose file mapping for correct directory
 # @app.route('/cdn/<path:path>')

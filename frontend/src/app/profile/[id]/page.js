@@ -30,6 +30,8 @@ export default function UserProfile({ params }) {
         }
         
         const data = await response.json();
+
+        console.log(data)
         
         setUserData({
           name: id || "",

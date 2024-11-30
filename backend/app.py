@@ -82,7 +82,7 @@ def create_tables():
 def base_path_route():
     return Response(status=200)
 
-@app.route(base_path + "feed", methods=["GET"])
+@app.route(base_path + "feed", methods=["POST"])
 def get_and_return_feed():
     try:
         connection = create_connection()
@@ -114,12 +114,14 @@ def get_and_return_feed():
 # def serve_images():
 #     return send_from_directory('pictures', path)
 
+# TODO: Implement user and posting finding/searching for profile page
 @app.route(base_path + "/users/get", methods=["GET"])
 def get_user():
     connection = create_connection()
 
     user = find_user_by_username(connection, data["username"])
 
+    
 
     return None
 

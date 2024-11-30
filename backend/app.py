@@ -5,9 +5,10 @@ from mysql.connector import errors
 import hashlib
 
 logger = logging.getLogger("backend-app-logger")
+frontend_url = os.getenv("FRONTEND_URL")
 
 app = Flask(__name__)
-CORS(app, support_credentials=True)
+CORS(app, support_credentials=True, resources={r"/*": {"origins": [frontend_url]}})
 
 base_path = "/api/v1/"
 

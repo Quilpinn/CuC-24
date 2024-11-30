@@ -34,6 +34,8 @@ services:
       - '8484:8484'
     expose:
       - '8484'
+    environment:
+      - FRONTEND_URL=https://probable-halibut-qg5pq4pg566c9vr6-3000.app.github.dev/
 
   frontend:
     image: cuc-24/frontend
@@ -50,7 +52,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - NEXT_PUBLIC_API_URL= ** INSERT API URL HERE **
+      - NEXT_PUBLIC_API_URL=https://probable-halibut-qg5pq4pg566c9vr6-8484.app.github.dev:8484
 
 volumes:
   db_data:

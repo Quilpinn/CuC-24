@@ -2,6 +2,7 @@
 import "/src/app/globals.css";
 import React, { useState } from "react";
 import { setAuthentication } from "/src/app/cockies";
+import Link from "next/link";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -16,9 +17,10 @@ function InputBox({ children, label }) {
   );
 }
 
-function TextInput({ label, ...props }) {
+function TextInput({ label, hint, ...props }) {
   return (
     <InputBox label={label}>
+      {hint ?? <div>{hint}</div>}
       <input
         type="text"
         className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
@@ -34,6 +36,8 @@ function RegisterBox({ registerState, setRegisterState }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const interestsArray = registerState.interests.split(',')
+
       const response = await fetch(`${apiUrl}/api/v1/users/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -41,6 +45,8 @@ function RegisterBox({ registerState, setRegisterState }) {
           username: registerState.user,
           email: registerState.mail,
           password: registerState.pass,
+          interests: interestsArray,
+          city: registerState.city
         }),
       });
 
@@ -91,6 +97,23 @@ function RegisterBox({ registerState, setRegisterState }) {
             setRegisterState({ ...registerState, pass: e.target.value })
           }
         />
+        <TextInput
+          id="interests"
+          name="interests"
+          hint="Bitte gib eine ',' separierte Liste deiner Interessen an."
+          type="text"
+          label="Interessen"
+          value={registerState.interests}
+          onChange={(e) => setRegisterState({...registerState, interests: e.target.value})}
+        />
+        <TextInput
+          id="city"
+          name="city"
+          type="text"
+          label="Stadt"
+          value={registerState.city}
+          onChange={(e) => setRegisterState({...registerState, city: e.target.value})}
+        />
         <button
           type="submit"
           className="bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 px-4 rounded-lg hover:shadow-lg transition-all"
@@ -101,9 +124,9 @@ function RegisterBox({ registerState, setRegisterState }) {
       </form>
       <p className="text-center text-gray-600 text-sm mt-4">
       Hast du schon ein Konto?{" "}
-        <a href="#" className="text-pink-500 hover:underline">
-        Einloggen
-        </a>
+        <Link href="/login" className="text-pink-500 hover:underline">
+          Einloggen
+        </Link>
       </p>
     </div>
   );

@@ -3,9 +3,27 @@ import React, { useState } from "react";
 import eventImage from "/src/assets/img.png";
 import { use } from 'react';
 
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+const getPostDetails = () => {
+  fetch(`${apiUrl}/api/v1/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        hash: getAuthentication(),
+        eventid: eventid
+    })
+}).catch(error => {
+    console.error('Failed to add participant:', error);
+});
+}
+
 export default function EventDetails({ params }) {
   const { id } = use(params);
   console.log(id);
+  // Fetch event data
+
   // Hardcoded event data
   const fakeEvent = {
     id: 1,

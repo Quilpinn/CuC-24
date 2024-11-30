@@ -4,31 +4,44 @@ import { useRouter } from "next/navigation"
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-async function getUser() {
-    try {
-        const response = await fetch(`localhost:8484/api/v1/user/get`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                hash: getAuthentication(),
-            })
-        });
-        const username = await response.json();
-    } catch (error) {
-        console.error('Error fetching user:', error);
-    }
-    return username;
+const getInitials = (names) => {
+    const initials = names.split(' ').map(name => name[0].toUpperCase())
+    const initialString = initials.length == 1 ? initials[0] : initials[0] + initials[1]
+    return initialString
 }
 
 export default function Dropdown({setIsAuthenticated}) {
     const [isOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState('Choose an option');
+    const [user, setUser] = useState()
     const router = useRouter()
 
     const options = [
         "Me",
         "Logout",
     ];
+
+    useEffect(() => {
+        const fetchUserName = async () => {
+            try {                
+                const response = await fetch(`${apiUrl}/api/v1/users/getByHash`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        hash: getAuthentication(),
+                    })
+                });
+                const userData = await response.json();
+                setUser(userData)
+                console.log(userData);
+                
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
+        }
+
+        fetchUserName()
+    }, [])
 
     const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -40,7 +53,6 @@ export default function Dropdown({setIsAuthenticated}) {
             window.location.href = `/profile/${encodeURIComponent(username)}`;
         }
         else if (option == "Logout") {
-            console.log('hi');
             
             removeAuthentication();
             setIsAuthenticated(false)
@@ -53,13 +65,9 @@ export default function Dropdown({setIsAuthenticated}) {
             {/* Circular image button */}
             <button
                 onClick={toggleDropdown}
-                className="w-12 h-12 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="w-12 h-12 bg-pink-300 text-pink-800 font-bold rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-                <img
-                    src={`${apiUrl}/cdn/default.PNG`}
-                    alt="Dropdown trigger"
-                    className="w-full h-full object-cover"
-                />
+                {user && user.username && getInitials(user.username)}
             </button>
 
             {/* Dropdown menu */}

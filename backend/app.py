@@ -1,9 +1,7 @@
 from flask import Flask, jsonify, Response, request, send_from_directory, redirect
 from flask_cors import CORS, cross_origin
-import mysql.connector, logging, random, string, os, sys, json, hashlib
+import mysql.connector, logging, random, string, os, sys, json, hashlib, mail
 from mysql.connector import errors
-import mail
-
 from sort import ratePosts
 
 logger = logging.getLogger("backend-app-logger")
@@ -14,7 +12,6 @@ CORS(app, support_credentials=True, resources={r"/*": {"origins": [frontend_url]
 
 base_path = "/api/v1/"
 
-############### helper functions ##################
 def generate_sha256(password):
     hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
     return hashed_password
@@ -58,35 +55,29 @@ def create_connection():
         connection = mysql.connector.connect(host='cuc-24-db-1', database='data', user='root', password='A4432468432456432432')
 
         if connection.is_connected():
-            print("Connected to MySQL database")
             logger.debug("Connected to mysql")
             return connection
     except Error as e:
-        print(f"Error creating connection: {e}")
         logger.critical(f"Error creating mysql connection: {e}")
         return None
 
 def close_connection(connection):
     if connection.is_connected():
         connection.close()
-        print("Connection closed")
         logger.debug("Connection to mysql closed")
 
 def create_tables():
     connection = create_connection()
     cursor = connection.cursor()
-    query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(4000) NOT NULL, CITY VARCHAR(255), INTERESTS VARCHAR(400), VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP, EMAIL_CODE VARCHAR(255))"
-    query2 = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, CONTENT_TYPE VARCHAR(255) NOT NULL, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP, CREATED_BY_UUID VARCHAR(255) NOT NULL, EVENT_QID VARCHAR(255))"
-    query3 = "CREATE TABLE IF NOT EXISTS Events (QEID VARCHAR(255), IEID INT AUTO_INCREMENT PRIMARY KEY, CITY VARCHAR(255), EVENT_DATE VARCHAR(255), INTERESTS VARCHAR(400), CREATED_BY_UUID VARCHAR(255), PARTICIPANTS VARCHAR(2000))"
-    cursor.execute(query)
-    cursor.execute(query2)
-    cursor.execute(query3)
+    query_table_users = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(4000) NOT NULL, CITY VARCHAR(255), INTERESTS VARCHAR(400), VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP, EMAIL_CODE VARCHAR(255))"
+    query_table_posts = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, CONTENT_TYPE VARCHAR(255) NOT NULL, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP, CREATED_BY_UUID VARCHAR(255) NOT NULL, EVENT_QID VARCHAR(255))"
+    query_table_events = "CREATE TABLE IF NOT EXISTS Events (QEID VARCHAR(255), IEID INT AUTO_INCREMENT PRIMARY KEY, CITY VARCHAR(255), EVENT_DATE VARCHAR(255), INTERESTS VARCHAR(400), CREATED_BY_UUID VARCHAR(255), PARTICIPANTS VARCHAR(2000))"
+    cursor.execute(query_table_users)
+    cursor.execute(query_table_posts)
+    cursor.execute(query_table_events)
     connection.commit()
     close_connection(connection)
     
-    
-################### routers ##################
-
 @app.route(base_path, methods=["GET", "POST"])
 def base_path_route():
     return Response(status=200)
@@ -156,8 +147,6 @@ def get_and_return_feed():
                 }
                 
                 ratePosts(events_map, user)
-
-            
 
         posts_with_events = []
         for post in posts:
@@ -367,8 +356,8 @@ def add_participant_to_event():
     connection = create_connection()
     cursor = connection.cursor()
 
-    query = "SELECT PARTICIPANTS FROM Events WHERE QEID = %s"
-    cursor.execute(query, (data["eventId"],))
+    query_select_participants = "SELECT PARTICIPANTS FROM Events WHERE QEID = %s"
+    cursor.execute(query_select_participants, (data["eventId"],))
     res = cursor.fetchone()
     
     if res is None:
@@ -378,8 +367,8 @@ def add_participant_to_event():
     hash_cookie = data["hash"]
     uuid = find_user_id_by_hash(connection, hash_cookie)
     
-    query2 = "SELECT USERNAME FROM Users WHERE UUID = %s"
-    cursor.execute(query2, (uuid,))
+    query_select_username = "SELECT USERNAME FROM Users WHERE UUID = %s"
+    cursor.execute(query_select_username, (uuid,))
     res_username = cursor.fetchone()
 
     if res_username is None:
@@ -393,8 +382,8 @@ def add_participant_to_event():
 
     updated_participants = ";".join(participants_list)
     
-    query3 = "UPDATE Events SET PARTICIPANTS = %s WHERE QEID = %s"
-    cursor.execute(query3, (updated_participants, data["eventId"]))
+    query_update_participants = "UPDATE Events SET PARTICIPANTS = %s WHERE QEID = %s"
+    cursor.execute(query_update_participants, (updated_participants, data["eventId"]))
 
     connection.commit()
 
@@ -447,11 +436,10 @@ def authenticate_user():
     query = "SELECT * FROM Users WHERE username = %s AND password = %s"
     cursor.execute(query, (username, password))
     user = cursor.fetchone()
-    print(user)
 
     close_connection(connection)
 
-    user_cookie = generate_sha256(username) + ":" + generate_sha256(password)
+    user_cookie = f"{generate_sha256(username)}:{generate_sha256(password)}"
     
     if user:
         return jsonify({"status": "ok", "hash": user_cookie}), 200
@@ -470,6 +458,9 @@ def email_verification():
     res = cursor.fetchone()
 
     if res:
+        query_update_user = "UPDATE Users SET VERIFIED = 1 WHERE EMAIL_CODE = %s"
+        cursor.execute(query_update_user, (email_code,))
+        connection.commit()
         return redirect(frontend_url, code =302)
     
     return Response("No corresponding e-mail code found.", status=400)

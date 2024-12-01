@@ -68,7 +68,7 @@ def distance(city1: str, city2: str) -> float:
 
 
 
-def ratePosts(posts: dict, user: dict) -> dict: 
+def ratePosts(posts: dict, user: dict): 
     """
     rate events/posts by how close to the user they are and how much the user is probably interested.
     
@@ -81,8 +81,7 @@ def ratePosts(posts: dict, user: dict) -> dict:
         dict of dicts: contains the original posts with ratings and the total distance in regards to the given user. 
     """
     
-    result = {}
-    for key, post in posts.items():
+    for  post in posts.values():
         
         # distance rating
         post["absoluteDistance"] = distance(post["CITY"],user["city"])
@@ -98,7 +97,3 @@ def ratePosts(posts: dict, user: dict) -> dict:
         # total rating
         post["totalRating"] = post["interestRating"] + post["distanceRating"]
         
-        result[key] = post
-            
-    
-    return result

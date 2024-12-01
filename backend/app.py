@@ -144,9 +144,7 @@ def get_and_return_feed():
                 for event in events
             }
             
-            if hash != "":
-                logger.error("hash exists")
-                # conversion to list to sort: TODO: if hash != default
+            if data != {}:
                 uuid = find_user_id_by_hash(connection, data["hash"])
                 user_query = "SELECT CITY, INTERESTS FROM Users WHERE UUID = %s"
                 cursor.execute(user_query, (uuid, ))
@@ -157,9 +155,7 @@ def get_and_return_feed():
                     "interests": user_res[1]
                 }
                 
-                events_rated = ratePosts(events_map, user)
-            else:
-                events_rated = events_map
+                ratePosts(events_map, user)
 
             
 

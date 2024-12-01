@@ -4,6 +4,8 @@ import mysql.connector, logging, random, string, os, sys, json, hashlib
 from mysql.connector import errors
 import mail
 
+from sort import ratePosts
+
 logger = logging.getLogger("backend-app-logger")
 frontend_url = os.getenv("FRONTEND_URL")
 
@@ -12,6 +14,7 @@ CORS(app, support_credentials=True, resources={r"/*": {"origins": [frontend_url]
 
 base_path = "/api/v1/"
 
+############### helper functions ##################
 def generate_sha256(password):
     hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
     return hashed_password
@@ -74,12 +77,15 @@ def create_tables():
     cursor = connection.cursor()
     query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(4000) NOT NULL, CITY VARCHAR(255), INTERESTS VARCHAR(400), VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP)"
     query2 = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, CONTENT_TYPE VARCHAR(255) NOT NULL, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP, CREATED_BY_UUID VARCHAR(255) NOT NULL, EVENT_QID VARCHAR(255))"
-    query3 = "CREATE TABLE IF NOT EXISTS Events (QEID VARCHAR(255), IEID INT AUTO_INCREMENT PRIMARY KEY, CITY VARCHAR(255), EVENT_DATE VARCHAR(255), CREATED_BY_UUID VARCHAR(255), PARTICIPANTS VARCHAR(2000))"
+    query3 = "CREATE TABLE IF NOT EXISTS Events (QEID VARCHAR(255), IEID INT AUTO_INCREMENT PRIMARY KEY, CITY VARCHAR(255), EVENT_DATE VARCHAR(255), INTERESTS VARCHAR(400), CREATED_BY_UUID VARCHAR(255), PARTICIPANTS VARCHAR(2000))"
     cursor.execute(query)
     cursor.execute(query2)
     cursor.execute(query3)
     connection.commit()
     close_connection(connection)
+    
+    
+################### routers ##################
 
 @app.route(base_path, methods=["GET", "POST"])
 def base_path_route():
@@ -89,7 +95,7 @@ def base_path_route():
 def get_and_return_feed():
     data = request.json
 
-    try:
+    if True: # try
         connection = create_connection()
         cursor = connection.cursor()
 
@@ -121,21 +127,41 @@ def get_and_return_feed():
         events_map = {}
         if event_ids:
             placeholders = ",".join(["%s"] * len(event_ids))
-            events_query = f"SELECT QEID, CITY, EVENT_DATE, CREATED_BY_UUID, PARTICIPANTS FROM Events WHERE QEID IN ({placeholders})"
+            events_query = f"SELECT QEID, CITY, EVENT_DATE, INTERESTS, CREATED_BY_UUID, PARTICIPANTS FROM Events WHERE QEID IN ({placeholders})"
             cursor.execute(events_query, tuple(event_ids))
             events = cursor.fetchall()
-
+            
             events_map = {
                 event[0]: {
-                    "USERNAME": event[3],
+                    "USERNAME": event[4],
                     "QEID": event[0],
                     "CITY": event[1],
                     "EVENT_DATE": event[2],
-                    "CREATED_BY_UUID": str(event[3]),
-                    "PARTICIPANTS": event[4] or "",
+                    "INTERESTS": event[3],
+                    "CREATED_BY_UUID": str(event[4]),
+                    "PARTICIPANTS": event[5] or "",
                 }
                 for event in events
             }
+            
+            if hash != "":
+                logger.error("hash exists")
+                # conversion to list to sort: TODO: if hash != default
+                uuid = find_user_id_by_hash(connection, data["hash"])
+                user_query = "SELECT CITY, INTERESTS FROM Users WHERE UUID = %s"
+                cursor.execute(user_query, (uuid, ))
+                user_res = cursor.fetchone()
+                
+                user = {
+                    "city": user_res[0],
+                    "interests": user_res[1]
+                }
+                
+                events_rated = ratePosts(events_map, user)
+            else:
+                events_rated = events_map
+
+            
 
         posts_with_events = []
         for post in posts:
@@ -151,7 +177,7 @@ def get_and_return_feed():
 
         return jsonify({"posts": posts_with_events}), 200
 
-    except Exception as e:
+    else: # except Exception as e:
         logger.error(f"Error retrieving feed: {e}")
         if 'connection' in locals():
             close_connection(connection)
@@ -277,6 +303,7 @@ def create_event():
     city = data["city"]
     event_time = data["time"]
     event_date = data["date"]
+    interests = data["interests"]
     hash_cookie = data["hash"]
 
     connection = create_connection()
@@ -287,10 +314,10 @@ def create_event():
         cursor = connection.cursor()
 
         query1 = "INSERT INTO Posts (CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID, EVENT_QID) VALUES (%s, %s, %s, %s, %s, %s)"
-        query2 = "INSERT INTO Events (QEID, CITY, EVENT_DATE, CREATED_BY_UUID) VALUES (%s, %s, %s, %s)"
+        query2 = "INSERT INTO Events (QEID, CITY, EVENT_DATE, INTERESTS, CREATED_BY_UUID) VALUES (%s, %s, %s, %s, %s)"
 
         cursor.execute(query1, ("event", str(heading), str(content), None, str(uuid), str(event_u_id)))
-        cursor.execute(query2, (str(event_u_id), str(city), f"{event_date} {event_time}", str(uuid)))
+        cursor.execute(query2, (str(event_u_id), str(city), f"{event_date} {event_time}", interests, str(uuid)))
         connection.commit()
     except Exception as e:
         connection.rollback()

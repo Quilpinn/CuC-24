@@ -5,12 +5,12 @@ from geopy.distance import geodesic
 
 test_posts = [
     {
-        "city": "Heidelberg",
+        "CITY": "Heidelberg",
         "tags": ["Walzer", "Bachata"],
         "other_stuff": "1"
     },
     {
-        "city": "Karlsruhe",
+        "CITY": "Karlsruhe",
         "tags": ["Salsa", "Bachata"],
         "other_stuff": "1"
     }
@@ -68,23 +68,24 @@ def distance(city1: str, city2: str) -> float:
 
 
 
-def ratePosts(posts: Iterable[dict], user: dict) -> Iterable[dict]: 
+def ratePosts(posts: dict, user: dict) -> dict: 
     """
     rate events/posts by how close to the user they are and how much the user is probably interested.
     
     Args:
-        posts (list of dicts): List of events/posts where each dict has info on that event/post and must contain keys for "city" and "tags"
+        posts (dict of dicts): Dict of events/posts where each dict has info on that event/post and must contain keys for "CITY" and "tags"
         user (dict): Contains user information. Keys for "city" and "interests" must be present
         The posts dicts can NOT have "absoluteDistance", "distanceRating", "totalRating" or "interestRating" keys!
         
     Returns:
-        list of dicts: contains the original posts with ratings and the total distance in regards to the given user. 
+        dict of dicts: contains the original posts with ratings and the total distance in regards to the given user. 
     """
     
-    result = []
-    for post in posts[:max(len(posts),250)]:
+    result = {}
+    for key, post in posts.items():
+        
         # distance rating
-        post["absoluteDistance"] = distance(post["city"],user["city"])
+        post["absoluteDistance"] = distance(post["CITY"],user["city"])
         
         if post["absoluteDistance"] == 0:
             post["distanceRating"] = 5
@@ -92,14 +93,12 @@ def ratePosts(posts: Iterable[dict], user: dict) -> Iterable[dict]:
             post["distanceRating"] = 3.5/(post["absoluteDistance"]**0.3)
         
         # interest rating
-        post["interestRating"] = len(list(set(post["tags"]) & set(user["interests"])))
+        post["interestRating"] = len(list(set(post["INTERESTS"]) & set(user["interests"])))
         
         # total rating
         post["totalRating"] = post["interestRating"] + post["distanceRating"]
         
-        result.append(post)
+        result[key] = post
             
     
     return result
-
-print(ratePosts(test_posts,test_user))

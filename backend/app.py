@@ -422,7 +422,8 @@ def create_user():
         cursor.execute(query, line)
         connection.commit()
         close_connection(connection)
-        mail.send_mail(email, "Dein Verifizierunglink für StepZZ!", f"Moin {username}, hier ist dein persönlicher Verifizierungslink. {email_code} Bitte nutze ihn doch um uns mitzuteilen das du aktiv bist. ~ LG StepZZ Team")
+        if True == False:
+            mail.send_mail(email, "Dein Verifizierunglink für StepZZ!", f"Moin {username}, hier ist dein persönlicher Verifizierungslink. {email_code} Bitte nutze ihn doch um uns mitzuteilen das du aktiv bist. ~ LG StepZZ Team")
         return jsonify({"status": "ok"}), 201
     except errors.IntegrityError as e:
         if e.errno == 1062:

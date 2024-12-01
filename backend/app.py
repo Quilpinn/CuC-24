@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response, request, send_from_directory
+from flask import Flask, jsonify, Response, request, send_from_directory, redirect
 from flask_cors import CORS, cross_origin
 import mysql.connector, logging, random, string, os, sys, json, hashlib
 from mysql.connector import errors
@@ -469,9 +469,9 @@ def email_verification():
     res = cursor.fetchone()
 
     if res:
-        return Response(status=200)
+        return redirect(frontend_url, code =302)
     
-    return Response(status=400)
+    return Response("No corresponding e-mail code found.", status=400)
 
 if __name__ == '__main__':
     create_tables()

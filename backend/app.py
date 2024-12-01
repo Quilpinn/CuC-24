@@ -261,7 +261,7 @@ def create_post():
 
     query = "INSERT INTO Posts (CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID, EVENT_QID) VALUES (%s, %s, %s, %s, %s, %s)"
 
-    cursor.execute(query, ("post", heading, content, str("null"), uuid[0], event_id))
+    cursor.execute(query, ("post", heading, content, str("null"), uuid, event_id))
     connection.commit()
     close_connection(connection)
 

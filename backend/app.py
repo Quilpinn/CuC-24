@@ -95,7 +95,7 @@ def base_path_route():
 def get_and_return_feed():
     data = request.json
 
-    if True: # try
+    try:
         connection = create_connection()
         cursor = connection.cursor()
 
@@ -173,7 +173,7 @@ def get_and_return_feed():
 
         return jsonify({"posts": posts_with_events}), 200
 
-    else: # except Exception as e:
+    except Exception as e:
         logger.error(f"Error retrieving feed: {e}")
         if 'connection' in locals():
             close_connection(connection)

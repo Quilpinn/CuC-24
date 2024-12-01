@@ -1,0 +1,45 @@
+# Stage 1: Build
+FROM node:20 AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+ARG API_URL=http://localhost:8484
+ENV NEXT_PUBLIC_API_URL=$API_URL
+
+
+# Install dependencies
+RUN npm install
+
+# Copy application code
+COPY . .
+
+# Build the Next.js app
+RUN npm run build
+
+# Stage 2: Serve
+FROM node:20-alpine AS runner
+
+# Set working directory
+WORKDIR /app
+
+# Copy built files from the build stage
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/public ./public
+
+# Install only production dependencies
+RUN npm install --production
+
+# Expose the port used by Next.js
+EXPOSE 3000
+
+ARG API_URL=http://localhost:8484
+ENV NEXT_PUBLIC_API_URL=$API_URL
+
+
+# Start the Next.js app
+CMD ["npm", "start"]

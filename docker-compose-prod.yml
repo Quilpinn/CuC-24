@@ -1,0 +1,57 @@
+services:
+  db:
+    image: mysql:5.7
+    platform: linux/x86_64
+    restart: always
+    environment:
+      TZ: Europe/Berlin
+      MYSQL_DATABASE: 'data'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'hewrhuqewewrewr'
+      MYSQL_ROOT_PASSWORD: 'A4432468432456432432'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root --password=A4432468432456432432
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    image: cuc-24/backend
+    restart: always
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '8484:8484'
+    expose:
+      - '8484'
+    environment:
+      - FRONTEND_URL=http://localhost:3000
+
+  frontend:
+    image: cuc-24/frontend
+    restart: always
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile-prod
+    ports:
+      - '3000:3000'
+    expose:
+      - '3000'
+    command: npm run start
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8484
+      - NODE_ENV=production
+
+volumes:
+  db_data:

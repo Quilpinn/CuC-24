@@ -21,6 +21,22 @@ test_user = {
     "interests": ["Walzer", "Salsa"]
 }
 
+def string_to_list(string_input: str) -> Iterable[str]:
+    '''
+    Transform string that looks like list into list.
+    
+    Args:
+        string_input (str): that string
+        
+    Returns:
+        list of strings: The strings that were in the list that actually was not a list
+    '''
+    # Remove the outer brackets and split by comma
+    cleaned = string_input.strip('[]')
+    # Split by comma and clean up each element
+    elements = [elem.strip().strip('"\'') for elem in cleaned.split(',')]
+    # Remove empty strings that might result from splitting
+    return [elem for elem in elements if elem]
 
 def get_coordinates(city: str) -> Optional[Tuple[float, float]]:
     """
@@ -94,7 +110,13 @@ def ratePosts(posts: dict, user: dict):
             post["distanceRating"] = 3.5/(post["absoluteDistance"]**0.3)
         
         # interest rating
-        post["interestRating"] = len(list(set(list(post["INTERESTS"])) & set(user["interests"].split(","))))
+        # raise ValueError(post["INTERESTS"].split(","))
+        # raise ValueError(string_to_list(user["interests"]))
+        # if post["INTERESTS"].split(",") == ["salsa", "bachata"]:
+            # raise ValueError(list(set(post["INTERESTS"].split(",")))) # Error retrieving feed: ['bachata', 'salsa']
+            # raise ValueError(list(set(string_to_list(user["interests"])))) # Error retrieving feed: [' salsa', 'walzer']
+            # raise ValueError(list(set(post["INTERESTS"].split(",")) & set(string_to_list(user["interests"]))))
+        post["interestRating"] = len(list(set(post["INTERESTS"].split(",")) & set(string_to_list(user["interests"]))))
         
         # total rating
         post["totalRating"] = post["interestRating"] + post["distanceRating"]

@@ -43,6 +43,8 @@ function Feed(props) {
 
                 const data = await response.json();
 
+                console.log(data)
+
                 if (!Array.isArray(data.posts)) {
                     throw new Error("Expected array of posts but received different data structure");
                 }
@@ -105,9 +107,50 @@ function Feed(props) {
             ]
     }
 
+    // const [sortedData, setSortedData] = useState(posts);
+
+    // Sorting function
+    const sortBy = (key) => {
+        console.log("sorting by: ")
+        console.log(key)
+        const eventPosts = posts.filter(post => post.CONTENT_TYPE === "event");
+        const sorted = [...eventPosts].sort((a, b) => {
+            console.log(`Comparing: ${a.event_details[key]} vs ${b.event_details[key]}`);
+            return b.event_details[key] - a.event_details[key];
+        });
+        // Combine sorted event posts with non-event posts
+        const nonEventPosts = posts.filter(post => post.CONTENT_TYPE !== "event");
+        setPosts([...sorted, ...nonEventPosts]);
+    };
+
     return (
         <div className="flex flex-col items-center w-full py-5 bg-gray-100 min-h-screen" {...props}>
             <h1 className="text-3xl font-bold text-center mb-5">Dein Feed</h1>
+            <div className="space-x-4 mb-6">
+                <button
+                onClick={() => sortBy('totalRating')}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                Events für dich!
+                </button>
+                <button
+                onClick={() => sortBy('distanceRating')}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                Events in deiner Nähe!
+                </button>
+                <button
+                onClick={() => sortBy('interestRating')}
+                className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                >
+                Events die zu dir passen!
+                </button>
+                <button
+                className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                >
+                <a href="/">Alle Posts</a>
+                </button>
+            </div>
             {posts.map((post) => {
                 if (post.CONTENT_TYPE === "event") {
                     return (

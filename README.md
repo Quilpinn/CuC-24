@@ -36,7 +36,8 @@ Willkommen zu **STEPZZ**, einer einzigartigen Plattform, die speziell für die T
 - Eine voll funktionsfähige Plattform, die **Events und Beiträge** verbindet. 🎉
 - Eine **responsive Benutzeroberfläche** 💻
 - **E-Mail-Verifizierung**, um die Sicherheit der Plattform zu gewährleisten. 🔒
-- Ein **algorithmischer Feed**, der basierend auf Interessen und Standort personalisierte Inhalte liefert. 🤖✨
+- Ein **algorithmischer Feed**, der basierend auf Interessen und Standort personalisierte Inhalte liefert. 🤖
+- Einzigartigkeit: **STEPZZ ist die erste Plattform dieser Art**, speziell für Tänzer entwickelt. 🏆
 
 ---
 
@@ -44,6 +45,27 @@ Willkommen zu **STEPZZ**, einer einzigartigen Plattform, die speziell für die T
 - Modernes Design mit reibungsloser Benutzererfahrung. 🖌️
 - **Community-First-Ansatz**, um Tänzer näher zusammenzubringen. ❤️
 -  ✨
+
+---
+
+## 🛠️ Lokal ausführen
+
+Möchtest du STEPZZ lokal auf deinem Rechner ausprobieren? Hier ist die Anleitung: 
+
+1. **Repository klonen**  
+   ```bash
+   git clone https://github.com/dein-username/stepzz.git
+   cd stepzz ```
+2. **Abhängigkeiten installieren**
+Stelle sicher, dass Node.js und Docker auf deinem Rechner installiert sind.
+ ```npm install```
+3. **Docker installieren**
+  Falls Docker nicht installiert ist, lade es von der offiziellen Docker-Website herunter. 
+4. **Projekt starten**
+Starte die Plattform mit einem einzigen Befehl:
+```docker-compose up --build```
+5. **Öffne im Browser**
+Die Anwendung läuft nun unter http://localhost:3000. 🎉
 
 ---
 

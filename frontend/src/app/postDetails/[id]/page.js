@@ -4,6 +4,8 @@ import { use } from 'react';
 import { getAuthentication } from "@/services/cookies";
 import { useRouter } from 'next/navigation';
 
+import { CalendarLink } from "@/components/CalendarLink";
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 async function getUsername() {
@@ -235,6 +237,13 @@ export default function EventDetails({ params }) {
             eventId={id}
           />
         </div>
+        <CalendarLink eventData={{
+            id: eventData.eventId,
+            title: eventData.HEADING,
+            description: eventData.CONTENT,
+            startTime: new Date(eventData.time.replace(' ', 'T')),
+            location: eventData.CITY
+          }} />
 
         <CommentSection
           comment={comment}

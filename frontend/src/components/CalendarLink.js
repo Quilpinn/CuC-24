@@ -1,7 +1,12 @@
 "use client"
 
 export function CalendarLink({ eventData }) {
-  const { title, description, startTime, endTime, location, id } = eventData;
+  const title = eventData.title;
+  const description = eventData.description;
+  const startTime = eventData.startTime;
+  const endTime = new Date(eventData.startTime);
+  endTime.setHours(startTime.getHours() + 1);
+  const location = eventData.location;
 
   const googleUrl = `https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(title)}&dates=${startTime.toISOString()}/${endTime.toISOString()}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location)}`;
 

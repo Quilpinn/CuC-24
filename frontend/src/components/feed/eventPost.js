@@ -5,27 +5,7 @@ import PublisherLink from "./publisherLink";
 
 import { getAuthentication } from "/src/services/cookies"
 
-async function addParticipant(eventId) {
-    try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-        const response = await fetch(`${apiUrl}/api/v1/events/participate`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                hash: getAuthentication(),
-                eventId: eventId,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to add participant.");
-        }
-        console.log("Participant added successfully.");
-    } catch (error) {
-        console.error("Failed to add participant:", error);
-    }
-}
+import { useRouter } from "next/navigation"
 
 async function getUsername() {
     try {
@@ -56,6 +36,7 @@ export default function EventPost({post}) {
     : null;
 
     const [username, setUsername] = useState(null);
+    const router = useRouter()
     
     useEffect(() => {
         getUsername().then(name => {
@@ -63,6 +44,29 @@ export default function EventPost({post}) {
         });
     }, []);
     
+    async function addParticipant(eventId) {
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    
+            const response = await fetch(`${apiUrl}/api/v1/events/participate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    hash: getAuthentication(),
+                    eventId: eventId,
+                }),
+            });
+    
+            if (!response.ok) {
+                throw new Error("Failed to add participant.");
+            }
+            console.log("Participant added successfully.");
+            router.refresh()
+        } catch (error) {
+            console.error("Failed to add participant:", error);
+        }
+    }
+
 
     return (
         <div

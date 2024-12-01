@@ -7,7 +7,6 @@ export default function UserProfile({ params }) {
   const { id } = use(params);
   console.log(id);
   const [userData, setUserData] = useState({
-    //fetch data from bd
     name: "",
     interests: "",
     city: "",
@@ -19,12 +18,12 @@ export default function UserProfile({ params }) {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${apiUrl}/api/v1/users/get`, {
+        const response = await fetch(`${apiUrl}/api/v1/users/getById`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ username: id })
+          body: JSON.stringify({ uuid: id })
         });
         
         if (!response.ok) {
@@ -36,11 +35,16 @@ export default function UserProfile({ params }) {
         console.log(data)
         const interestsAsArray = JSON.parse(data.interests);
         const interestsFormated = interestsAsArray.join(', ');
+        const randomAvatarUrl = `https://api.dicebear.com/6.x/bottts/svg?seed=${Math.random()
+        .toString(36)
+        .substring(7)}`;
         
         setUserData({
-          name: id || "",
+          avatarUrl: randomAvatarUrl,
+          username: data.username,
+          name: data.uuid,
           interests: interestsFormated || "", // .join(", ") ? TODO?
-          city: data.city || "",
+          city: data.city,
         });
       } catch (error) {
         console.error('Error fetching user data:', error); // TODO: HTML "User not found!" if this happens.
@@ -49,14 +53,6 @@ export default function UserProfile({ params }) {
   
     fetchUserData();
   }, [id]);
-
-  // Generate a random avatar
-  useEffect(() => {
-    const randomAvatarUrl = `https://api.dicebear.com/6.x/bottts/svg?seed=${Math.random()
-      .toString(36)
-      .substring(7)}`;
-    setUserData((prevData) => ({ ...prevData, avatarUrl: randomAvatarUrl }));
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-pink-500 to-purple-600 flex justify-center items-center">
@@ -72,7 +68,7 @@ export default function UserProfile({ params }) {
 
         {/* User Name */}
         <h1 className="text-2xl font-bold text-gray-800">
-          {userData.name}
+          {userData.username}
         </h1>
 
         {/* Info Section */}

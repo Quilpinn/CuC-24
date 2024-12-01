@@ -60,7 +60,8 @@ Möchtest du STEPZZ lokal auf deinem Rechner ausprobieren? Hier ist die Anleitun
 Stelle sicher, dass Node.js und Docker auf deinem Rechner installiert sind.
  ```npm install```
 3. **Docker installieren**
-  Falls Docker nicht installiert ist, lade es von der offiziellen Docker-Website herunter. 
+  Falls Docker nicht installiert ist, lade es von der offiziellen [Docker-Website](https://docs.docker.com/engine/install/)
+ herunter. 
 4. **Projekt starten**
 Starte die Plattform mit einem einzigen Befehl:
 ```docker-compose up --build```

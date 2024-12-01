@@ -27,6 +27,13 @@ async function addParticipant(eventId) {
 
 function Feed(props) {
     const [posts, setPosts] = useState([]);
+    const [selectedFilter, setSelectedFilter] = useState("");
+
+    const handleFilterClick = (filterType) => {
+        setSelectedFilter(filterType); 
+        sortBy(filterType); 
+    };
+
     // let posts = null;
     if (true) {
 
@@ -126,38 +133,58 @@ function Feed(props) {
     return (
         <div className="flex flex-col items-center w-full py-5 bg-gray-100 min-h-screen" {...props}>
             <h1 className="text-3xl font-bold text-center mb-5">Dein Feed</h1>
-            <div className="space-x-4 mb-6">
+
+            {/* Button Group */}
+            <div className="bg-white shadow-lg rounded-lg p-4 flex gap-4 justify-center mb-6">
                 <button
-                onClick={() => sortBy('totalRating')}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    onClick={() => handleFilterClick("totalRating")}
+                    className={`px-4 py-2 rounded transition ${
+                        selectedFilter === "totalRating"
+                            ? "bg-blue-500 text-white"
+                            : "bg-blue-100 text-blue-500 hover:bg-blue-200"
+                    }`}
                 >
-                Events für dich!
+                    Events für dich!
                 </button>
                 <button
-                onClick={() => sortBy('distanceRating')}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    onClick={() => handleFilterClick("distanceRating")}
+                    className={`px-4 py-2 rounded transition ${
+                        selectedFilter === "distanceRating"
+                            ? "bg-green-500 text-white"
+                            : "bg-green-100 text-green-500 hover:bg-green-200"
+                    }`}
                 >
-                Events in deiner Nähe!
+                    Events in deiner Nähe!
                 </button>
                 <button
-                onClick={() => sortBy('interestRating')}
-                className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                    onClick={() => handleFilterClick("interestRating")}
+                    className={`px-4 py-2 rounded transition ${
+                        selectedFilter === "interestRating"
+                            ? "bg-purple-500 text-white"
+                            : "bg-purple-100 text-purple-500 hover:bg-purple-200"
+                    }`}
                 >
-                Events die zu dir passen!
+                    Events die zu dir passen!
                 </button>
-                <button
-                className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                <a
+                    href="/"
+                    onClick={() => handleFilterClick("all")}
+                    className={`px-4 py-2 rounded transition ${
+                        selectedFilter === "all"
+                            ? "bg-gray-500 text-white"
+                            : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                    }`}
                 >
-                <a href="/">Alle Posts</a>
-                </button>
+                    Alle Posts
+                </a>
             </div>
+
+            {/* Posts */}
             {posts.map((post) => {
                 if (post.CONTENT_TYPE === "event") {
-                    return (
-                        <EventPost key={post.PID} post={post}/>
-                    );
+                    return <EventPost key={post.PID} post={post} />;
                 } else if (post.CONTENT_TYPE === "post") {
-                    return <CommentPost key={post.PID} post={post}/>
+                    return <CommentPost key={post.PID} post={post} />;
                 }
                 return null; // Skip unsupported content types
             })}

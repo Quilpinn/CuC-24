@@ -3,6 +3,12 @@ import "/src/app/globals.css";
 import React, { useState, useEffect } from "react";
 import { use } from 'react';
 
+const getInitials = (names) => {
+  const initials = names.split(' ').map(name => name[0].toUpperCase())
+  const initialString = initials.length == 1 ? initials[0] : initials[0] + initials[1]
+  return initialString
+}
+
 export default function UserProfile({ params }) {
   const { id } = use(params);
   console.log(id);
@@ -59,11 +65,9 @@ export default function UserProfile({ params }) {
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg text-center flex flex-col items-center gap-6">
         {/* Avatar */}
         <div className="relative">
-          <img
-            src={userData.avatarUrl}
-            alt="User Avatar"
-            className="w-28 h-28 rounded-full border-4 border-pink-500 shadow-md"
-          />
+            <div className="flex items-center justify-center text-2xl w-20 h-20 bg-pink-300 text-pink-800 font-bold rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                {userData && userData.username && getInitials(userData.username)}
+            </div>
         </div>
 
         {/* User Name */}

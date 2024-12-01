@@ -83,6 +83,8 @@ def ratePosts(posts: dict, user: dict):
     
     for  post in posts.values():
         
+        # raise ValueError(user["interests"])
+        # raise ValueError(posts[list(posts.keys())[2]]["INTERESTS"])
         # distance rating
         post["absoluteDistance"] = distance(post["CITY"],user["city"])
         
@@ -92,7 +94,7 @@ def ratePosts(posts: dict, user: dict):
             post["distanceRating"] = 3.5/(post["absoluteDistance"]**0.3)
         
         # interest rating
-        post["interestRating"] = len(list(set(post["INTERESTS"]) & set(user["interests"])))
+        post["interestRating"] = len(list(set(list(post["INTERESTS"])) & set(user["interests"].split(","))))
         
         # total rating
         post["totalRating"] = post["interestRating"] + post["distanceRating"]

@@ -7,11 +7,8 @@ export default function NewEventButton() {
     return (
         <Link href="/newPost">
             <div
-                className="z-10 fixed bottom-5 right-12 bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg flex items-center text-white group transition-all duration-300 ease-in-out rounded-full"
-                style={{
-                    width: '48px',  // Small circle initially
-                    height: '48px',
-                }}
+                className="z-10 fixed bottom-5 right-12 bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg p-4 rounded-full flex items-center text-white group transition-all duration-300 ease-in-out hover:pr-6 hover:pl-5 hover:rounded-lg"
+                style={{ width: 'auto' }}
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -30,20 +27,11 @@ export default function NewEventButton() {
                     <path d="M5 12l14 0" />
                 </svg>
                 <span
-                    className="ml-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out overflow-hidden"
-                    style={{
-                        maxWidth: '0px',  
-                        transition: 'max-width 0.3s ease-in-out, opacity 0.3s ease-in-out',
-                    }}
+                    className="ml-2 whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:ml-4 transition-all duration-300 ease-in-out overflow-hidden"
                 >
                     Neues Event anlegen
                 </span>
             </div>
-            <style jsx>{`
-                .group:hover span {
-                    max-width: 150px; // Smoothly expands to show text on hover
-                }
-            `}</style>
         </Link>
     );
 }

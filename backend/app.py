@@ -2,6 +2,7 @@ from flask import Flask, jsonify, Response, request, send_from_directory
 from flask_cors import CORS, cross_origin
 import mysql.connector, logging, random, string, os, sys, json, hashlib
 from mysql.connector import errors
+import mail
 
 logger = logging.getLogger("backend-app-logger")
 frontend_url = os.getenv("FRONTEND_URL")
@@ -205,7 +206,7 @@ def create_post():
 
     query = "INSERT INTO Posts (CONTENT_TYPE, HEADING, CONTENT, PICTURE_URL, CREATED_BY_UUID, EVENT_QID) VALUES (%s, %s, %s, %s, %s, %s)"
 
-    cursor.execute(query, ("post", heading, content, str("null"), uuid[0], event_id))
+    cursor.execute(query, ("post", heading, content, str("null"), str(uuid), event_id))
     connection.commit()
     close_connection(connection)
 

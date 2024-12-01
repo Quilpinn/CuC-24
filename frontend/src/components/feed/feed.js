@@ -35,8 +35,6 @@ function Feed(props) {
     };
 
     // let posts = null;
-    if (true) {
-
     useEffect(() => {
         async function fetchFeed() {
             try {
@@ -63,56 +61,7 @@ function Feed(props) {
         }
 
         fetchFeed();
-    }, []);}
-    else {
-        posts = [
-                {
-                    "CONTENT": "tette",
-                    "CONTENT_TYPE": "event",
-                    "CREATED_BY_UUID": "6dmg0mnw-gtevjkb9-oub13tqe-bht05ypv",
-                    "EVENT_QID": "w7g5h562-dnmckqnr-qmsja46m-i8wb1rvm",
-                    "HEADING": "testt",
-                    "PICTURE_URL": null,
-                    "PID": 2,
-                    "TIMESTAMP": "Sat, 30 Nov 2024 18:23:53 GMT",
-                    "event_details": {
-                        "CITY": "tt",
-                        "CREATED_BY_UUID": "6dmg0mnw-gtevjkb9-oub13tqe-bht05ypv",
-                        "EVENT_DATE": "2000-01-01 00:00",
-                        "PARTICIPANTS": "",
-                        "QEID": "w7g5h562-dnmckqnr-qmsja46m-i8wb1rvm"
-                    }
-                },
-                {
-                    "CONTENT": "tette",
-                    "CONTENT_TYPE": "post",
-                    "CREATED_BY_UUID": "6dmg0mnw-gtevjkb9-oub13tqe-bht05ypv",
-                    "EVENT_QID": "w7g5h562-dnmckqnr-qmsja46m-i8wb1rvm",
-                    "HEADING": "testt", 
-                    "PICTURE_URL": null,
-                    "PID": 2,
-                    "TIMESTAMP": "Sat, 30 Nov 2024 18:23:53 GMT",
-                    "EVENT_HEADING": "tette"
-                },
-                {
-                    "CONTENT": "test",
-                    "CONTENT_TYPE": "event",
-                    "CREATED_BY_UUID": "6dmg0mnw-gtevjkb9-oub13tqe-bht05ypv",
-                    "EVENT_QID": "nwduwlsm-qf7o95n7-0iodwdjk-q58kavsk",
-                    "HEADING": "test",
-                    "PICTURE_URL": null,
-                    "PID": 1,
-                    "TIMESTAMP": "Sat, 30 Nov 2024 18:21:46 GMT",
-                    "event_details": {
-                        "CITY": "test",
-                        "CREATED_BY_UUID": "6dmg0mnw-gtevjkb9-oub13tqe-bht05ypv",
-                        "EVENT_DATE": "2000-01-01 00:00",
-                        "PARTICIPANTS": "",
-                        "QEID": "nwduwlsm-qf7o95n7-0iodwdjk-q58kavsk"
-                    }
-                }
-            ]
-    }
+    }, []);
 
     // const [sortedData, setSortedData] = useState(posts);
 

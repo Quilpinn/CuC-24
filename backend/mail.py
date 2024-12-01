@@ -11,12 +11,5 @@ def send_mail(recipient, subject, body):
     smtp_password = os.getenv("SMTP_PASSWORD")
     sender_email = os.getenv("SENDER_EMAIL")
 
-    Envelope() \
-        .subject(subject) \
-        .body(body) \
-        .from_(sender_email) \
-        .to(recipient) \
-        .smtp(smtp_server, smtp_port, smtp_user, smtp_password, "starttls") \
-        .send()
-
-Envelope.smtp_quit()
+    Envelope().subject(subject).body(body).from_(sender_email).to(recipient).smtp(smtp_server, smtp_port, smtp_user, smtp_password, "starttls").send()
+    Envelope.smtp_quit()

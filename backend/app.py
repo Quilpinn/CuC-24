@@ -75,7 +75,7 @@ def close_connection(connection):
 def create_tables():
     connection = create_connection()
     cursor = connection.cursor()
-    query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(4000) NOT NULL, CITY VARCHAR(255), INTERESTS VARCHAR(400), VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP)"
+    query = "CREATE TABLE IF NOT EXISTS Users (UUID VARCHAR(255) NOT NULL, USERNAME VARCHAR(255) UNIQUE NOT NULL, EMAIL VARCHAR(255) UNIQUE NOT NULL, PASSWORD VARCHAR(4000) NOT NULL, CITY VARCHAR(255), INTERESTS VARCHAR(400), VERIFIED INT NOT NULL, CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP, EMAIL_CODE VARCHAR(255))"
     query2 = "CREATE TABLE IF NOT EXISTS Posts (PID INT AUTO_INCREMENT PRIMARY KEY, CONTENT_TYPE VARCHAR(255) NOT NULL, HEADING VARCHAR(2000), CONTENT VARCHAR(10000) NOT NULL, PICTURE_URL VARCHAR(255), TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP, CREATED_BY_UUID VARCHAR(255) NOT NULL, EVENT_QID VARCHAR(255))"
     query3 = "CREATE TABLE IF NOT EXISTS Events (QEID VARCHAR(255), IEID INT AUTO_INCREMENT PRIMARY KEY, CITY VARCHAR(255), EVENT_DATE VARCHAR(255), INTERESTS VARCHAR(400), CREATED_BY_UUID VARCHAR(255), PARTICIPANTS VARCHAR(2000))"
     cursor.execute(query)
@@ -407,19 +407,22 @@ def create_user():
     connection = create_connection()
     cursor = connection.cursor()
 
+    username = data["username"]
     email = data["email"]
     password = generate_sha256(data["password"])
+    email_code = generate_uuid()
     
     interests_json = json.dumps(data["interests"])
     
-    line = (generate_uuid(), data["username"], email, password, data["city"], interests_json, 0)
+    line = (generate_uuid(), username, email, password, data["city"], interests_json, 0, email_code)
 
-    query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, CITY, INTERESTS, VERIFIED) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    query = "INSERT INTO Users (UUID, USERNAME, EMAIL, PASSWORD, CITY, INTERESTS, VERIFIED, EMAIL_CODE) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
 
     try:
         cursor.execute(query, line)
         connection.commit()
         close_connection(connection)
+        mail.send_mail(email, "Dein Verifizierunglink für StepZZ!", f"Moin {username}, hier ist dein persönlicher Verifizierungslink. {email_code} Bitte nutze ihn doch um uns mitzuteilen das du aktiv bist. ~ LG StepZZ Team")
         return jsonify({"status": "ok"}), 201
     except errors.IntegrityError as e:
         if e.errno == 1062:
@@ -453,6 +456,22 @@ def authenticate_user():
         return jsonify({"status": "ok", "hash": user_cookie}), 200
     else:
         return jsonify({"status": "Der Benutzername oder das Passwort ist falsch."}), 401
+
+@app.route("/email", methods=["GET"])
+def email_verification():
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    email_code = request.args.get("code")
+
+    query = "SELECT USERNAME FROM Users WHERE EMAIL_CODE = %s"
+    cursor.execute(query, (email_code, ))
+    res = cursor.fetchone()
+
+    if res:
+        return Response(status=200)
+    
+    return Response(status=400)
 
 if __name__ == '__main__':
     create_tables()

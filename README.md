@@ -37,14 +37,13 @@ Willkommen zu **STEPZZ**, einer einzigartigen Plattform, die speziell für die T
 - Eine **responsive Benutzeroberfläche** 💻
 - **E-Mail-Verifizierung**, um die Sicherheit der Plattform zu gewährleisten. 🔒
 - Ein **algorithmischer Feed**, der basierend auf Interessen und Standort personalisierte Inhalte liefert. 🤖
-- Einzigartigkeit: **STEPZZ ist die erste Plattform dieser Art**, speziell für Tänzer entwickelt. 🏆
 
 ---
 
 ## 🌟 Besonderheiten
 - Modernes Design mit reibungsloser Benutzererfahrung. 🖌️
 - **Community-First-Ansatz**, um Tänzer näher zusammenzubringen. ❤️
--  ✨
+- Einzigartigkeit: **STEPZZ ist die erste Plattform dieser Art**, speziell für Tänzer entwickelt. 🏆 ✨
 
 ---
 

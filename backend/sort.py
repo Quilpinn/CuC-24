@@ -99,8 +99,6 @@ def ratePosts(posts: dict, user: dict):
     
     for  post in posts.values():
         
-        # raise ValueError(user["interests"])
-        # raise ValueError(posts[list(posts.keys())[2]]["INTERESTS"])
         # distance rating
         post["absoluteDistance"] = distance(post["CITY"],user["city"])
         
@@ -110,12 +108,6 @@ def ratePosts(posts: dict, user: dict):
             post["distanceRating"] = 3.5/(post["absoluteDistance"]**0.3)
         
         # interest rating
-        # raise ValueError(post["INTERESTS"].split(","))
-        # raise ValueError(string_to_list(user["interests"]))
-        # if post["INTERESTS"].split(",") == ["salsa", "bachata"]:
-            # raise ValueError(list(set(post["INTERESTS"].split(",")))) # Error retrieving feed: ['bachata', 'salsa']
-            # raise ValueError(list(set(string_to_list(user["interests"])))) # Error retrieving feed: [' salsa', 'walzer']
-            # raise ValueError(list(set(post["INTERESTS"].split(",")) & set(string_to_list(user["interests"]))))
         post["interestRating"] = len(list(set(post["INTERESTS"].split(",")) & set(string_to_list(user["interests"]))))
         
         # total rating

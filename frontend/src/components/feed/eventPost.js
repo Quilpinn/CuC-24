@@ -1,10 +1,68 @@
+import { useState, useEffect } from 'react';
+
 import handleShare from "@/services/handleShare";
 import PublisherLink from "./publisherLink";
 
+import { getAuthentication } from "/src/services/cookies"
+
+async function addParticipant(eventId) {
+    try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+        const response = await fetch(`${apiUrl}/api/v1/events/participate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                hash: getAuthentication(),
+                eventId: eventId,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to add participant.");
+        }
+        console.log("Participant added successfully.");
+    } catch (error) {
+        console.error("Failed to add participant:", error);
+    }
+}
+
+async function getUsername() {
+    try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+        const response = await fetch(`${apiUrl}/api/v1/users/getByHash`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                hash: getAuthentication(),
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to get username.");
+        }
+        const data = await response.json();
+        return data.username
+    } catch (error) {
+        console.error("Failed to get username:", error);
+    }
+}
+
+
 export default function EventPost({post}) {
-    const participants = post.PARTICIPANTS
-    ? post.PARTICIPANTS.split("; ")
+    const participants = post.event_details.PARTICIPANTS
+    ? post.event_details.PARTICIPANTS.split("; ")
     : null;
+
+    const [username, setUsername] = useState(null);
+    
+    useEffect(() => {
+        getUsername().then(name => {
+            setUsername(name);
+        });
+    }, []);
+    
 
     return (
         <div
@@ -44,7 +102,7 @@ export default function EventPost({post}) {
                     >
                         Melde dich als erster an!
                     </a>
-                ) : participants.includes(getAuthentication()) ? (
+                ) : participants.includes(username) ? (
                     <p>
                         Du bist dabei!{" "}
                         {participants.length - 1 > 0 &&

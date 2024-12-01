@@ -57,7 +57,7 @@ def create_connection():
         if connection.is_connected():
             logger.debug("Connected to mysql")
             return connection
-    except Error as e:
+    except errors as e:
         logger.critical(f"Error creating mysql connection: {e}")
         return None
 

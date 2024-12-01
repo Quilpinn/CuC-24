@@ -26,9 +26,9 @@ Willkommen zu **STEPZZ**, einer einzigartigen Plattform, die speziell für die T
 
 ## 💻 Technologien
 - **Frontend:** Next.js + Tailwind CSS 🌐🎨
-- **Backend:** Node.js & API-Anbindung 🛠️
-- **Datenbank:** PostgreSQL 📊
-- **Authentifizierung:** Cookies und JWT-Token 🔐
+- **Backend:** Python & Docker & mySQL & API-Anbindung 🛠️
+- **Datenbank:** mySQL 📊
+- **Authentifizierung:** Cookies 🔐
 
 ---
 

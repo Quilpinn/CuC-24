@@ -17,7 +17,7 @@ export default function Dropdown({setIsAuthenticated}) {
     const router = useRouter()
 
     const options = [
-        "Me",
+        "Profil",
         "Logout",
     ];
 
@@ -49,7 +49,7 @@ export default function Dropdown({setIsAuthenticated}) {
         setSelected(option);
         setIsOpen(false);
 
-        if (option == "Me") {
+        if (option == "Profil") {
             window.location.href = `/profile/${user.uuid}`;
         }
         else if (option == "Logout") {

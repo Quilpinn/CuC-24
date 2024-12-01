@@ -34,7 +34,7 @@ Willkommen zu **STEPZZ**, einer einzigartigen Plattform, die speziell für die T
 
 ## 🚀 Was haben wir erreicht?
 - Eine voll funktionsfähige Plattform, die **Events und Beiträge** verbindet. 🎉
-- Eine **responsive Benutzeroberfläche**, die auf allen Geräten funktioniert. 📱💻
+- Eine **responsive Benutzeroberfläche** 💻
 - **E-Mail-Verifizierung**, um die Sicherheit der Plattform zu gewährleisten. 🔒
 - Ein **algorithmischer Feed**, der basierend auf Interessen und Standort personalisierte Inhalte liefert. 🤖✨
 
@@ -43,7 +43,7 @@ Willkommen zu **STEPZZ**, einer einzigartigen Plattform, die speziell für die T
 ## 🌟 Besonderheiten
 - Modernes Design mit reibungsloser Benutzererfahrung. 🖌️
 - **Community-First-Ansatz**, um Tänzer näher zusammenzubringen. ❤️
-- Tools, um Kreativität und Leidenschaft für Tanz zu teilen und zu fördern. ✨
+-  ✨
 
 ---
 
